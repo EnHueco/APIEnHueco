@@ -2,56 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e55c34f9-c8d8-452d-be92-79684f9b0945" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/dataSources.ids" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/db.sqlite3" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.gitignore" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/.name" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/authentication/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/authentication/migrations/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/migrations/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/enHuecoAPIMain/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/schedules/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/schedules/migrations/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tokenizer/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tokenizer/migrations/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/users/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/users/migrations/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/enHuecoAPI.iml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/encodings.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/manage.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tokenizer/middleware.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/authentication/models.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/models.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/schedules/models.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tokenizer/models.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/users/models.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/scopes/scope_settings.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/schedules/serializers.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tokenizer/serializers.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/users/serializers.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/enHuecoAPIMain/settings.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/authentication/tests.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/tests.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/schedules/tests.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tokenizer/tests.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/users/tests.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/authentication/urls.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/urls.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/enHuecoAPIMain/urls.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/schedules/urls.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/authentication/views.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/views.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/schedules/views.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tokenizer/views.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/users/views.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/enHuecoAPIMain/wsgi.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="enHuecoAPI.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -582,10 +533,10 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1920" height="1013" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32899022" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3756786" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3756786" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32917318" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32960597" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
