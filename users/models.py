@@ -12,7 +12,7 @@ class User(models.Model):
     imageURL = models.CharField(max_length=200)
 
     # Control Attributes
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(default=timezone.now)
     lastUpdated_on = models.DateTimeField(auto_now=True)
 
     # Relationships
@@ -39,7 +39,7 @@ class FriendRequest(models.Model):
     toUser = models.ForeignKey(settings.USER_MODEL, related_name='+')
 
     # Control Attributes
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(default=timezone.now)
     lastUpdated_on = models.DateTimeField(auto_now=True)
 
 class Friendship(models.Model):
@@ -48,7 +48,7 @@ class Friendship(models.Model):
     secondUser = models.ForeignKey(settings.USER_MODEL, related_name='+')
 
     # Control Attributes
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(default=timezone.now)
     lastUpdated_on = models.DateTimeField(auto_now=True)
 
 

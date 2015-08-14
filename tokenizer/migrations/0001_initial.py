@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-import datetime
+import django.utils.timezone
 
 
 class Migration(migrations.Migration):
@@ -15,9 +15,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Token',
             fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('value', models.CharField(max_length=256)),
-                ('owner', models.ForeignKey(primary_key=True, serialize=False, to='users.User')),
-                ('created_on', models.DateTimeField(default=datetime.datetime(2015, 8, 12, 16, 42, 32, 831957))),
+                ('created_on', models.DateTimeField(default=django.utils.timezone.now)),
+                ('user', models.ForeignKey(to='users.User')),
             ],
         ),
         migrations.CreateModel(

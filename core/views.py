@@ -11,9 +11,20 @@ from users.views import FriendsViewSet
 from schedules.views import GapsViewSet
 
 # Method that authenticates user if valid token and user_id is given
+class APIView(APIView):
+
+    def set_authentication_params(self, request):
+
+        self.user_id =  request.META['HTTP_X_USER_ID']
+        self.token = request.META['HTTP_X_USER_TOKEN']
+
+    def authenticate(self):
+        return Tokenizer.authenticate(self.user_id, self.token)
+
 
 
 class Authenticate(APIView):
+
 
     def post(self, request):
 
@@ -72,8 +83,9 @@ class Authenticate(APIView):
 class UserDetail(APIView):
 
     def get(self, request):
-        if Tokenizer.authenticate(request.query_params['user_id'], request.query_params['token']):
-            return UsersViewSet().show(request,request.query_params['user_id'])
+        self.set_authentication_params(request)
+        if self.authenticate():
+            return UsersViewSet().show(request,self.user_id)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -82,8 +94,9 @@ class UserDetail(APIView):
 class ReceivedFriendRequestsList(APIView):
 
     def get(self, request):
-        if Tokenizer.authenticate(request.query_params['user_id'], request.query_params['token']):
-            return ReceivedFriendRequestViewSet().list(request, pk=request.query_params['user_id'])
+        self.set_authentication_params(request)
+        if self.authenticate():
+            return ReceivedFriendRequestViewSet().list(request, self.user_id)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -91,8 +104,9 @@ class ReceivedFriendRequestsList(APIView):
 class SentFriendRequestList(APIView):
 
     def get(self, request):
-        if Tokenizer.authenticate(request.query_params['user_id'], request.query_params['token']):
-            return SentFriendRequestViewSet().list(request, pk=request.query_params['user_id'])
+        self.set_authentication_params(request)
+        if self.authenticate():
+            return SentFriendRequestViewSet().list(request, pk=self.user_id)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -100,21 +114,24 @@ class SentFriendRequestList(APIView):
 class FriendDetail(APIView):
 
     def get(self, request, fpk):
-        if(Tokenizer.authenticate(request.query_params['user_id'], request.query_params['token'])):
-            return FriendsViewSet().show(request, request.query_params['user_id'], fpk)
+        self.set_authentication_params(request)
+        if self.authenticate():
+            return FriendsViewSet().show(request, self.user_id, fpk)
         else:
             return Response('Token not found or does not match',status=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request, fpk):
 
-        if Tokenizer.authenticate(request.data['user_id'], request.data['token']):
-            return FriendsViewSet().create(request,pk=request.data['user_id'],fpk=fpk)
+        self.set_authentication_params(request)
+        if self.authenticate():
+            return FriendsViewSet().create(request,pk=self.user_id,fpk=fpk)
         else:
             return Response('Token not found or does not match',status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, fpk):
-        if(Tokenizer.authenticate(request.data['user_id'], request.data['token'])):
-            return FriendsViewSet().delete(request, request.data['user_id'], fpk)
+        self.set_authentication_params(request)
+        if self.authenticate():
+            return FriendsViewSet().delete(request, self.user_id, fpk)
         else:
             #
             return Response('Token not found or does not match',status=status.HTTP_400_BAD_REQUEST)
@@ -122,8 +139,9 @@ class FriendDetail(APIView):
 class FriendList(APIView):
 
     def get(self, request):
-        if(Tokenizer.authenticate(request.query_params['user_id'], request.query_params['token'])):
-            return FriendsViewSet().list(request, request.query_params['user_id'])
+        self.set_authentication_params(request)
+        if self.authenticate():
+            return FriendsViewSet().list(request, self.user_id)
         else:
             return Response('Token not found or does not match',status=status.HTTP_400_BAD_REQUEST)
 
@@ -132,13 +150,15 @@ class FriendList(APIView):
 class GapsList(APIView):
 
     def get(self, request):
-        if(Tokenizer.authenticate(request.query_params['user_id'], request.query_params['token'])):
-            return GapsViewSet().list(request, request.query_params['user_id'])
+        self.set_authentication_params(request)
+        if self.authenticate():
+            return GapsViewSet().list(request, self.user_id)
         else:
             return Response('Token not found or does not match',status=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request):
-        if(Tokenizer.authenticate(request.data['user_id'], request.data['token'])):
+        self.set_authentication_params(request)
+        if self.authenticate():
             return GapsViewSet().create(request)
         else:
             return Response('Token not found or does not match',status=status.HTTP_400_BAD_REQUEST)
@@ -147,8 +167,9 @@ class GapsFriendList(APIView):
 
     def get(self, request, fpk):
 
-        if(Tokenizer.authenticate(request.query_params['user_id'], request.query_params['token'])):
-            if Friendship.areFriendsPK(request.query_params['user_id'], fpk):
+        self.set_authentication_params(request)
+        if self.authenticate():
+            if Friendship.areFriendsPK(self.user_id, fpk):
                 return GapsViewSet().list(request, fpk)
             else:
                 return Response('Users are not friends',status=status.HTTP_400_BAD_REQUEST)
@@ -158,9 +179,10 @@ class GapsFriendList(APIView):
 class GapsCross(APIView):
 
     def get(self, request, fpk):
-        if(Tokenizer.authenticate(request.query_params['user_id'], request.query_params['token'])):
-            if Friendship.areFriendsPK(request.query_params['user_id'],fpk):
-                return GapsViewSet().cross(request, pk1=request.query_params['user_id'], pk2=fpk)
+        self.set_authentication_params(request)
+        if self.authenticate():
+            if Friendship.areFriendsPK(self.user_id,fpk):
+                return GapsViewSet().cross(request, pk1=self.user_id, pk2=fpk)
             else:
                 return Response('Users are not friends',status=status.HTTP_400_BAD_REQUEST)
         else:

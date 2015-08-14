@@ -13,6 +13,10 @@ import os, socket
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
+TEMPLATE_DIRS = (
+#    BASE_DIR+ '/templates/',
+)
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
 
@@ -21,13 +25,13 @@ SECRET_KEY = 'n!m-67abfo)96p4-#caj1n4%bsyzsll!(kjs2gmijh4z+6*sdt'
 
 
 PRODUCTION = False
-if 'production' in socket.gethostname():
+if 'acm' in socket.gethostname():
     PRODUCTION = True
 
 DEBUG = not PRODUCTION
 TEMPLATE_DEBUG = DEBUG
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['acm.uniandes.edu.co']
 
 
 # Application definition
@@ -52,13 +56,14 @@ INSTALLED_APPS = (
 MIDDLEWARE_CLASSES = (
 
 
-#    'django.contrib.sessions.middleware.SessionMiddleware',
-#    'django.middleware.common.CommonMiddleware',
-#    'django.middleware.csrf.CsrfViewMiddleware',
-#    'django.contrib.auth.middleware.AuthenticationMiddleware',
-#    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
-#    'django.contrib.messages.middleware.MessageMiddleware',
-#    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'django.contrib.sessions.middleware.SessionMiddleware',
+    # 'django.middleware.common.CommonMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # 'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+    # 'django.contrib.messages.middleware.MessageMiddleware',
+    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'django.middleware.security.SecurityMiddleware'
 
 
 )

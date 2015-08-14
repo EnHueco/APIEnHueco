@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-import datetime
+import django.utils.timezone
 
 
 class Migration(migrations.Migration):
@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
             name='FriendRequest',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('created_on', models.DateTimeField(default=datetime.datetime(2015, 8, 12, 16, 42, 32, 816098))),
+                ('created_on', models.DateTimeField(default=django.utils.timezone.now)),
                 ('lastUpdated_on', models.DateTimeField(auto_now=True)),
             ],
         ),
@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
             name='Friendship',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('created_on', models.DateTimeField(default=datetime.datetime(2015, 8, 12, 16, 42, 32, 817245))),
+                ('created_on', models.DateTimeField(default=django.utils.timezone.now)),
                 ('lastUpdated_on', models.DateTimeField(auto_now=True)),
             ],
         ),
@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
                 ('firstNames', models.CharField(max_length=50)),
                 ('lastNames', models.CharField(max_length=50)),
                 ('imageURL', models.CharField(max_length=200)),
-                ('created_on', models.DateTimeField(default=datetime.datetime(2015, 8, 12, 16, 42, 32, 805691))),
+                ('created_on', models.DateTimeField(default=django.utils.timezone.now)),
                 ('lastUpdated_on', models.DateTimeField(auto_now=True)),
                 ('friends', models.ManyToManyField(related_name='friends+', through='users.Friendship', to='users.User')),
                 ('requests_sent', models.ManyToManyField(related_name='requests_received', through='users.FriendRequest', to='users.User')),

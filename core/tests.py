@@ -33,9 +33,9 @@ class FriendRequestTestCase(APITestCase):
     def testSendFriendRequest(self):
 
         url = reverse('friend-detail', kwargs={'fpk' : self.friendLogin})#'/requests/create/'+self.friendLogin +'/'
-        data = {'user_id':self.myLogin, 'token':self.myToken.value}
+        data = {'HTTP_X_USER_ID':self.myLogin, 'HTTP_X_USER_TOKEN':self.myToken.value}
 
-        response = self.client.post(url, data, format='json')
+        response = self.client.post(url,format='json', **data)
 
         fr = FriendRequest(fromUser=self.me, toUser=self.friend)
         fr.save()
@@ -46,10 +46,10 @@ class FriendRequestTestCase(APITestCase):
     def testSendExistingFriendRequest(self):
 
         url = reverse('friend-detail', kwargs={'fpk' : self.friendLogin})#'/requests/create/'+self.friendLogin +'/'
-        data = {'user_id':self.myLogin, 'token':self.myToken.value}
+        data = {'HTTP_X_USER_ID':self.myLogin, 'HTTP_X_USER_TOKEN':self.myToken.value}
 
-        response = self.client.post(url, data, format='json')
-        response = self.client.post(url, data, format='json')
+        response = self.client.post(url, format='json', **data)
+        response = self.client.post(url, format='json', **data)
 
         self.assertEqual(response.data, 'ERROR: Already sent request')
 
@@ -60,9 +60,9 @@ class FriendRequestTestCase(APITestCase):
         friendRequest.save()
 
         url = reverse('friend-detail', kwargs={'fpk' : self.friendLogin})#'/requests/create/'+self.friendLogin +'/'
-        data = {'user_id':self.myLogin, 'token':self.myToken.value}
+        data = {'HTTP_X_USER_ID':self.myLogin, 'HTTP_X_USER_TOKEN':self.myToken.value}
 
-        response = self.client.post(url, data, format='json')
+        response = self.client.post(url, format='json', **data)
 
         newFriendShip = Friendship.objects.create(firstUser=self.me, secondUser=self.friend)
 
@@ -72,9 +72,9 @@ class FriendRequestTestCase(APITestCase):
 
     def testShowReceivedFriendRequests(self):
         url = reverse('received-friend-requests-list')
-        data = {'user_id':self.myLogin, 'token':self.myToken.value}
+        data = {'HTTP_X_USER_ID':self.myLogin, 'HTTP_X_USER_TOKEN':self.myToken.value}
 
-        response = self.client.get(url,data=data,format='json')
+        response = self.client.get(url,format='json', **data)
 
         friends = self.me.requests_received.all()
         serializer = FriendRequestSerializer(friends, many=True)
@@ -85,9 +85,9 @@ class FriendRequestTestCase(APITestCase):
     def testShowSentFriendRequests(self):
 
         url = reverse('sent-friend-requests-list')
-        data = {'user_id':self.myLogin, 'token':self.myToken.value}
+        data = {'HTTP_X_USER_ID':self.myLogin, 'HTTP_X_USER_TOKEN':self.myToken.value}
 
-        response = self.client.get(url,data=data,format='json')
+        response = self.client.get(url,format='json', **data)
 
         friends = self.me.requests_sent.all()
         serializer = FriendRequestSerializer(friends, many=True)
@@ -115,7 +115,7 @@ class FriendshipTestCase(APITestCase):
     def testShowFriend(self):
 
         url = reverse('friend-detail', kwargs={'fpk' : self.friendLogin})
-        data = {'user_id':self.myLogin, 'token':self.myToken.value}
+        data = {'HTTP_X_USER_ID':self.myLogin, 'HTTP_X_USER_TOKEN':self.myToken.value}
 
         friendship1 = Friendship(firstUser=self.me,secondUser=self.friend)
         friendship2 = Friendship(firstUser=self.friend,secondUser=self.me)
@@ -123,7 +123,7 @@ class FriendshipTestCase(APITestCase):
         friendship1.save()
         friendship2.save()
 
-        response = self.client.get(url,data=data,format='json')
+        response = self.client.get(url,format='json', **data)
 
         serializer = UserSerializer(self.friend)
 
@@ -132,12 +132,12 @@ class FriendshipTestCase(APITestCase):
     def testShowUnfriendedFriend(self):
 
         url = reverse('friend-detail', kwargs={'fpk' : self.friendLogin})
-        data = {'user_id':self.myLogin, 'token':self.myToken.value}
+        data = {'HTTP_X_USER_ID':self.myLogin, 'HTTP_X_USER_TOKEN':self.myToken.value}
 
         friendship1 = Friendship(firstUser=self.me,secondUser=self.friend)
         friendship2 = Friendship(firstUser=self.friend,secondUser=self.me)
 
-        response = self.client.get(url,data=data,format='json')
+        response = self.client.get(url,format='json', **data)
 
 
         self.assertEqual(response.data, 'ERROR: Users are not friends')
@@ -147,9 +147,9 @@ class FriendshipTestCase(APITestCase):
     def testShowAllFriends(self):
 
         url = reverse('friend-list')
-        data = {'user_id':self.myLogin, 'token':self.myToken.value}
+        data = {'HTTP_X_USER_ID':self.myLogin, 'HTTP_X_USER_TOKEN':self.myToken.value}
 
-        response = self.client.get(url,data=data,format='json')
+        response = self.client.get(url,format='json', **data)
 
         friends = self.me.friends.all()
         serializer = FriendshipSerializer(friends, many=True)
@@ -161,7 +161,7 @@ class FriendshipTestCase(APITestCase):
     def testDeleteFriend(self):
 
         url = reverse('friend-detail',kwargs={'fpk': self.friend.login})
-        data = {'user_id':self.myLogin, 'token':self.myToken.value}
+        data = {'HTTP_X_USER_ID':self.myLogin, 'HTTP_X_USER_TOKEN':self.myToken.value}
         args={'fpk': self.me.login}
 
         friendship1 = Friendship(firstUser=self.me, secondUser=self.friend)
@@ -170,7 +170,7 @@ class FriendshipTestCase(APITestCase):
         friendship1.save()
         friendship2.save()
 
-        response = self.client.delete(url,data=data)
+        response = self.client.delete(url,**data)
 
         self.assertFalse(self.me in self.friend.friends.all())
 
@@ -207,9 +207,9 @@ class SchedulesTestCase(APITestCase):
     def testShowGaps(self):
 
         url = reverse('show-gaps')
-        data = {'user_id':self.myLogin, 'token':self.myToken.value}
+        data = {'HTTP_X_USER_ID':self.myLogin, 'HTTP_X_USER_TOKEN':self.myToken.value}
 
-        response = self.client.get(url, data)
+        response = self.client.get(url, **data)
         serializer = GapSerializer([self.gap1,self.gap2,self.gap3], many=True)
 
         self.assertEqual(response.data, serializer.data)
@@ -221,9 +221,10 @@ class SchedulesTestCase(APITestCase):
 
         gapCount = User.objects.get(login=self.me.login).gap_set.all().count()
         url = reverse('show-gaps')
-        data = {'user_id':self.myLogin, 'token':self.myToken.value, 'day':'5','start_hour':'100','end_hour':'153','user':self.me}
+        data = {'HTTP_X_USER_ID':self.myLogin, 'HTTP_X_USER_TOKEN':self.myToken.value}
+        gap = {'day':'5','start_hour':'100','end_hour':'153','user':self.me}
 
-        response = self.client.post(url, data)
+        response = self.client.post(url, data=gap, **data)
 
         gapCount2 = User.objects.get(login=self.me.login).gap_set.all().count()
 
@@ -240,26 +241,26 @@ class SchedulesTestCase(APITestCase):
 
     def testShowFriendSchedule(self):
 
-       url = reverse('show-friend-gaps', kwargs={'fpk':'friend10'})
-       data = {'user_id':self.myLogin, 'token':self.myToken.value}
+        url = reverse('show-friend-gaps', kwargs={'fpk':'friend10'})
+        data = {'HTTP_X_USER_ID':self.myLogin, 'HTTP_X_USER_TOKEN':self.myToken.value}
 
 
-       friendship1 = Friendship(firstUser=self.me,secondUser=self.friend)
-       friendship1.save()
-       friendship2 = Friendship(firstUser=self.friend,secondUser=self.me)
-       friendship2.save()
+        friendship1 = Friendship(firstUser=self.me,secondUser=self.friend)
+        friendship1.save()
+        friendship2 = Friendship(firstUser=self.friend,secondUser=self.me)
+        friendship2.save()
 
-       self.friend = self.me.friends.all()[0]
+        self.friend = self.me.friends.all()[0]
 
-       response = self.client.get(url, data, format='json')
-       serializer = GapSerializer(self.friend.gap_set.all(), many=True)
+        response = self.client.get(url,format='json', **data)
+        serializer = GapSerializer(self.friend.gap_set.all(), many=True)
 
-       self.assertEqual(response.data, serializer.data)
+        self.assertEqual(response.data, serializer.data)
 
     def testShowFriendGapsCross(self):
 
         url = reverse('show-friend-gaps-cross', kwargs={'fpk':'friend10'})
-        data = {'user_id':self.myLogin, 'token':self.myToken.value}
+        data = {'HTTP_X_USER_ID':self.myLogin, 'HTTP_X_USER_TOKEN':self.myToken.value}
 
         friendship1 = Friendship(firstUser=self.me,secondUser=self.friend)
         friendship1.save()
@@ -269,7 +270,7 @@ class SchedulesTestCase(APITestCase):
         finalSchedule = Gap.crossGaps(self.me.gap_set.all(), self.friend.gap_set.all() )
         serializer = GapSerializer(finalSchedule, many=True)
 
-        response = self.client.get(url, data)
+        response = self.client.get(url, **data)
 
         self.assertEqual(serializer.data, response.data)
 

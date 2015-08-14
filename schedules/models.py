@@ -15,7 +15,7 @@ class Gap(models.Model):
     end_hour = models.CharField(max_length=5)
 
     # Control Attributes
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(default=timezone.now)
     updated_on = models.DateTimeField(auto_now=True)
 
     # Foreign Key
