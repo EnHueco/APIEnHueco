@@ -48,14 +48,8 @@ class Authenticate(APIView):
 
                 deleteExtraChars = r'[\[\]\']'
 
-                firstNames = data['givenName']
-                lastNames = data['sn']
-
-                for ch in ['[',']','\'']:
-                    if ch in firstNames:
-                        firstNames = firstNames.replace(ch, '')
-                    if ch in lastNames:
-                        lastNames = lastNames.replace(ch, '')
+                firstNames = data['givenName'][0].strip()
+                lastNames = data['sn'][0].strip()
 
                 # CREATE and save User
                 newUser = User.create(login=user_id, firstNames=firstNames, lastNames=lastNames)
