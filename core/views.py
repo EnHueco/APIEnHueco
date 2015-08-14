@@ -134,23 +134,23 @@ class GapsList(APIView):
 
     def get(self, request):
         if(Tokenizer.authenticate(request.query_params['user_id'], request.query_params['token'])):
-            return GapsViewSet().list(self, request, pk=request.query_params['user_id'])
+            return GapsViewSet().list(request, request.query_params['user_id'])
         else:
             return Response('Token not found or does not match',status=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request):
         if(Tokenizer.authenticate(request.data['user_id'], request.data['token'])):
-            return GapsViewSet().create(self, request)
+            return GapsViewSet().create(request)
         else:
             return Response('Token not found or does not match',status=status.HTTP_400_BAD_REQUEST)
 
 class GapsFriendList(APIView):
 
-    def get(self, request, pk):
+    def get(self, request, fpk):
 
         if(Tokenizer.authenticate(request.query_params['user_id'], request.query_params['token'])):
-            if Friendship.areFriendsPK(request.query_params['user_id'], pk):
-                return GapsViewSet().list(self, request, pk)
+            if Friendship.areFriendsPK(request.query_params['user_id'], fpk):
+                return GapsViewSet().list(request, fpk)
             else:
                 return Response('Users are not friends',status=status.HTTP_400_BAD_REQUEST)
         else:
@@ -158,10 +158,10 @@ class GapsFriendList(APIView):
 
 class GapsCross(APIView):
 
-    def get(self, request, pk):
+    def get(self, request, fpk):
         if(Tokenizer.authenticate(request.query_params['user_id'], request.query_params['token'])):
-            if Friendship.areFriendsPK(request.query_params['user_id'],pk):
-                return GapsViewSet().cross(request, pk1=request.data['user_id'], pk2=pk)
+            if Friendship.areFriendsPK(request.query_params['user_id'],fpk):
+                return GapsViewSet().cross(request, pk1=request.query_params['user_id'], pk2=fpk)
             else:
                 return Response('Users are not friends',status=status.HTTP_400_BAD_REQUEST)
         else:

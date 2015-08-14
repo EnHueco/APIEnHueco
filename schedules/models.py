@@ -19,7 +19,7 @@ class Gap(models.Model):
     updated_on = models.DateTimeField(auto_now=True)
 
     # Foreign Key
-    user = models.ForeignKey(settings.USER_MODEL, primary_key=True)
+    user = models.ForeignKey(settings.USER_MODEL)
 
     @classmethod
     def create(cls, day, start_hour, end_hour, user):

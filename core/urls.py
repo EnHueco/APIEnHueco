@@ -11,15 +11,14 @@ urlpatterns = [
 # ME
     url(r'^me', views.UserDetail.as_view(), name='show-me'),
 # SCHEDULES
-    url(r'^schedule/$', views.GapsList.as_view(), name='show-schedule'),
-###    url(r'^schedule/update/$', views.UpdateMySchedule.as_view(), name='update-schedule'),
-###    url(r'^schedule/(?P<friendPK>[a-z]+(\.)?[a-z]+[0-9]*)/cross/$', views.CrossFriendSchedule.as_view(), name='show-cross-schedule-friend'),
-###    url(r'^schedule/(?P<friendPK>[a-z]+(\.)?[a-z]+[0-9]*)/', views.ShowFriendSchedule.as_view(), name='show-friend-schedule'),
-###    url(r'^schedule/day/update/$', views.UpdateMyScheduleDay.as_view(), name='update-schedule-day'),
+    url(r'^gaps/$', views.GapsList.as_view(), name='show-gaps'),
+    url(r'^gaps/(?P<fpk>[a-z]+(\.)?[a-z]+[0-9]*)/$', views.GapsFriendList.as_view(), name='show-friend-gaps'),
+    url(r'^gaps/cross/(?P<fpk>[a-z]+(\.)?[a-z]+[0-9]*)/$', views.GapsCross.as_view(), name='show-friend-gaps-cross'),
+
 # FRIEND REQUESTS
     url(r'^requests/sent/$', views.SentFriendRequestList.as_view(), name='sent-friend-requests-list'),
     url(r'^requests/received/$', views.ReceivedFriendRequestsList.as_view(), name='received-friend-requests-list'),
-# FRIENDS
+# FRIENDSc
     url(r'^friends/$', views.FriendList.as_view(), name='friend-list'),
     url(r'^friends/(?P<fpk>[a-z]+(\.)?[a-z]+[0-9]*)/$', views.FriendDetail.as_view(), name='friend-detail'),
 ]

@@ -8,13 +8,13 @@ import datetime
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('schedules', '0001_initial'),
+        ('tokenizer', '0002_auto_20150812_1642'),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='gap',
+            model_name='token',
             name='created_on',
-            field=models.DateTimeField(default=datetime.datetime(2015, 8, 12, 16, 42, 42, 807873)),
+            field=models.DateTimeField(default=datetime.datetime(2015, 8, 13, 19, 26, 50, 296288)),
         ),
     ]

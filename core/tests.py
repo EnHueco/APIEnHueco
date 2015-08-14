@@ -5,13 +5,12 @@ from rest_framework.response import Response
 from rest_framework import status
 
 # IMPORT MODELS
-from authentication.models import LDAPWrapper
 from tokenizer.models import Tokenizer, Token
 from users.models import User, FriendRequest, Friendship
-
+from schedules.models import Gap
 # IMPORT SERIALIZERS
+from schedules.serializers import GapSerializer
 from users.serializers import UserSerializer, FriendRequestSerializer, FriendshipSerializer
-
 from rest_framework.test import  APITestCase
 
 # Create your tests here.
@@ -132,7 +131,6 @@ class FriendshipTestCase(APITestCase):
 
     def testShowUnfriendedFriend(self):
 
-
         url = reverse('friend-detail', kwargs={'fpk' : self.friendLogin})
         data = {'user_id':self.myLogin, 'token':self.myToken.value}
 
@@ -178,109 +176,114 @@ class FriendshipTestCase(APITestCase):
 
 
 
-# ----- SCHEDULES -----
-# class SchedulesTestCase(APITestCase):
-#
-#
-#     def setUp(self):
-#         pass
-#
-#         self.myLogin = 'test10'
-#         self.friendLogin = 'friend10'
-#
-#         self.me = User.create(login=self.myLogin, firstNames='testNames', lastNames='testLastNames')
-#         self.me.save()
-#
-#         self.mySchedule = Schedule.create()
-#         self.mySchedule.owner = self.me
-#         self.mySchedule.save()
-#
-#         self.friendSchedule = Schedule.create()
-#
-#         self.myToken = Tokenizer.assignToken(self.me)
-#
-#         self.friend = User.create(login=self.friendLogin, firstNames='friendName', lastNames='friendLast')
-#         self.friend.save()
-#
-#         self.friendSchedule.owner = self.friend
-#         self.friendSchedule.save()
-#
-#
-#     def testShowMySchedule(self):
-#         pass
-#
-# #        url = reverse('show-schedule')
-# #        data = {'login':self.myLogin, 'token':self.myToken.value}
-# #
-# #        response = self.client.post(url, data, format='json')
-# #        serializer = ScheduleSerializer(self.me.schedule)
-#
-# #        self.assertEqual(response.data, serializer.data)
-#
-#     def testUpdateMySchedule(self):
-#         pass
-#
-# #        url = reverse('update-schedule')
-# #        scheduleJSON = '{"monday": "{\\"AM91\\": true, \\"AM90\\": false, \\"AM111\\": true, \\"AM110\\": false, \\"PM61\\": true, \\"PM60\\": false, \\"PM21\\": true, \\"PM20\\": false, \\"PM41\\": false, \\"PM40\\": false, \\"AM80\\": false, \\"AM81\\": false, \\"AM100\\": false, \\"AM101\\": false, \\"AM71\\": false, \\"AM70\\": false, \\"PM10\\": false, \\"PM11\\": false, \\"PM31\\": false, \\"PM50\\": false, \\"PM51\\": false, \\"PM30\\": false, \\"PM121\\": false, \\"PM120\\": false}", "tuesday": "{\\"AM91\\": false, \\"AM90\\": false, \\"AM111\\": false, \\"AM110\\": false, \\"PM61\\": false, \\"PM60\\": false, \\"PM21\\": false, \\"PM20\\": false, \\"PM41\\": false, \\"PM40\\": false, \\"AM80\\": false, \\"AM81\\": false, \\"AM100\\": false, \\"AM101\\": false, \\"AM71\\": false, \\"AM70\\": false, \\"PM10\\": false, \\"PM11\\": false, \\"PM31\\": false, \\"PM50\\": false, \\"PM51\\": false, \\"PM30\\": false, \\"PM121\\": false, \\"PM120\\": false}", "wednesday": "{\\"AM91\\": false, \\"AM90\\": false, \\"AM111\\": false, \\"AM110\\": false, \\"PM61\\": false, \\"PM60\\": false, \\"PM21\\": false, \\"PM20\\": false, \\"PM41\\": false, \\"PM40\\": false, \\"AM80\\": false, \\"AM81\\": false, \\"AM100\\": false, \\"AM101\\": false, \\"AM71\\": false, \\"AM70\\": false, \\"PM10\\": false, \\"PM11\\": false, \\"PM31\\": false, \\"PM50\\": false, \\"PM51\\": false, \\"PM30\\": false, \\"PM121\\": false, \\"PM120\\": false}", "thursday": "{\\"AM91\\": false, \\"AM90\\": false, \\"AM111\\": false, \\"AM110\\": false, \\"PM61\\": false, \\"PM60\\": false, \\"PM21\\": false, \\"PM20\\": false, \\"PM41\\": false, \\"PM40\\": false, \\"AM80\\": false, \\"AM81\\": false, \\"AM100\\": false, \\"AM101\\": false, \\"AM71\\": false, \\"AM70\\": false, \\"PM10\\": false, \\"PM11\\": false, \\"PM31\\": false, \\"PM50\\": false, \\"PM51\\": false, \\"PM30\\": false, \\"PM121\\": false, \\"PM120\\": false}", "friday": "{\\"AM91\\": false, \\"AM90\\": false, \\"AM111\\": false, \\"AM110\\": false, \\"PM61\\": false, \\"PM60\\": false, \\"PM21\\": false, \\"PM20\\": false, \\"PM41\\": false, \\"PM40\\": false, \\"AM80\\": false, \\"AM81\\": false, \\"AM100\\": false, \\"AM101\\": false, \\"AM71\\": false, \\"AM70\\": false, \\"PM10\\": false, \\"PM11\\": false, \\"PM31\\": false, \\"PM50\\": false, \\"PM51\\": false, \\"PM30\\": false, \\"PM121\\": false, \\"PM120\\": false}", "created_on": "2015-01-29T23:02:07.672090", "lastUpdated_on": "2015-01-29T23:02:07.672090" }'
-# #        data = {'login':self.myLogin, 'token':self.myToken.value, 'schedule': scheduleJSON}
-#
-# #        response = self.client.post(url, data, format='json')
-#
-# #        self.me = User.objects.get(login=self.myLogin)
-# #        serializer = ScheduleSerializer(self.me.schedule)
-#
-# #        self.assertEqual(response.data, serializer.data)
-#
-#
-#     def testShowFriendSchedule(self):
-#         pass
-# #        url = reverse('friend-detail-schedule', kwargs={'fpk':'friend10'})
-# #        data = {'login':self.myLogin, 'token':self.myToken.value}
-#
-#
-# #        friendship1 = Friendship(firstUser=self.me,secondUser=self.friend)
-# #        friendship1.save()
-# #        friendship2 = Friendship(firstUser=self.friend,secondUser=self.me)
-# #        friendship2.save()
-#
-# #        self.assertEqual(self.me.friends.all()[0], self.friend)
-# #        friend = self.me.friends.all()[0]
-#
-# #        response = self.client.post(url, data, format='json')
-# #        serializer = ScheduleSerializer(friend.schedule)
-#
-# #        self.assertEqual(response.data, serializer.data)
-#
-#     def testShowCrossSchedulesFriend(self):
-#         pass
-# #        url = reverse('show-cross-schedule-friend', kwargs={'fpk':'friend10'})
-# #        data = {'login':self.myLogin, 'token':self.myToken.value}
-#
-# #        friendship1 = Friendship(firstUser=self.me,secondUser=self.friend)
-# #        friendship1.save()
-# #        friendship2 = Friendship(firstUser=self.friend,secondUser=self.me)
-# #        friendship2.save()
-#
-# #        finalSchedule = Schedule.crossSchedules(self.me.schedule, self.friend.schedule)
-# #        serializer = ScheduleSerializer(finalSchedule)
-#
-# #        response = self.client.post(url, data, format='json')
-#
-#
-# #        for weekDay in Schedule.WEEKDAYS:
-# #            self.assertEqual(serializer.data[weekDay], response.data[weekDay])
-#
-#
-# #    def testUpdateMyScheduleDay(self):
-#
-# #        weekday = 'tuesday'
-# #        url = reverse('update-schedule-day')
-# #        dayJSON = '{\\"AM91\\": true, \\"AM90\\": false, \\"AM111\\": true, \\"AM110\\": false, \\"PM61\\": true, \\"PM60\\": false, \\"PM21\\": true, \\"PM20\\": false, \\"PM41\\": false, \\"PM40\\": false, \\"AM80\\": false, \\"AM81\\": false, \\"AM100\\": false, \\"AM101\\": false, \\"AM71\\": false, \\"AM70\\": false, \\"PM10\\": false, \\"PM11\\": false, \\"PM31\\": false, \\"PM50\\": false, \\"PM51\\": false, \\"PM30\\": false, \\"PM121\\": false, \\"PM120\\": false}'
-# #        data = {'login':self.myLogin, 'token':self.myToken.value, 'day': dayJSON, 'weekday': weekday}
-#
-# #        response = self.client.post(url, data, format='json')
-#
-# #        self.me = User.objects.get(login=self.myLogin)
-# #        serializer = DaySerializer(getattr(self.me.schedule, weekday))
-#
-# #        self.assertEqual(response.data, serializer.data)
+#----- SCHEDULES -----
+class SchedulesTestCase(APITestCase):
+
+    def setUp(self):
+        pass
+
+        self.myLogin = 'test10'
+        self.friendLogin = 'friend10'
+
+        self.me = User.create(login=self.myLogin, firstNames='testNames', lastNames='testLastNames')
+        self.me.save()
+
+        self.gap1 = Gap.objects.create(day="1",start_hour='100',end_hour='153',user=self.me)
+        self.gap2 = Gap.objects.create(day="2",start_hour='100',end_hour='153',user=self.me)
+        self.gap3 = Gap.objects.create(day="3",start_hour='100',end_hour='153',user=self.me)
+
+
+        self.myToken = Tokenizer.assignToken(self.me)
+
+        self.friend = User.create(login=self.friendLogin, firstNames='friendName', lastNames='friendLast')
+        self.friend.save()
+
+        self.fgap1 = Gap.objects.create(day="1",start_hour='100',end_hour='153',user=self.friend)
+        self.fgap2 = Gap.objects.create(day="2",start_hour='100',end_hour='153',user=self.friend)
+        self.fgap3 = Gap.objects.create(day="3",start_hour='100',end_hour='153',user=self.friend)
+
+
+
+    def testShowGaps(self):
+
+        url = reverse('show-gaps')
+        data = {'user_id':self.myLogin, 'token':self.myToken.value}
+
+        response = self.client.get(url, data)
+        serializer = GapSerializer([self.gap1,self.gap2,self.gap3], many=True)
+
+        self.assertEqual(response.data, serializer.data)
+
+    def testAddGap(self):
+
+        newGap = Gap(day='5',start_hour='100',end_hour='153',user=self.me)
+        serializer = GapSerializer(newGap)
+
+        gapCount = User.objects.get(login=self.me.login).gap_set.all().count()
+        url = reverse('show-gaps')
+        data = {'user_id':self.myLogin, 'token':self.myToken.value, 'day':'5','start_hour':'100','end_hour':'153','user':self.me}
+
+        response = self.client.post(url, data)
+
+        gapCount2 = User.objects.get(login=self.me.login).gap_set.all().count()
+
+        # Amount of gaps +1
+        self.assertTrue(gapCount + 1 == gapCount2)
+
+        # Returns the new Gap
+        self.assertEqual(serializer.data['start_hour'], response.data['start_hour'])
+        self.assertEqual(serializer.data['end_hour'], response.data['end_hour'])
+        self.assertEqual(serializer.data['day'], response.data['day'])
+        self.assertEqual(serializer.data['user'], response.data['user'])
+
+
+
+    def testShowFriendSchedule(self):
+
+       url = reverse('show-friend-gaps', kwargs={'fpk':'friend10'})
+       data = {'user_id':self.myLogin, 'token':self.myToken.value}
+
+
+       friendship1 = Friendship(firstUser=self.me,secondUser=self.friend)
+       friendship1.save()
+       friendship2 = Friendship(firstUser=self.friend,secondUser=self.me)
+       friendship2.save()
+
+       self.friend = self.me.friends.all()[0]
+
+       response = self.client.get(url, data, format='json')
+       serializer = GapSerializer(self.friend.gap_set.all(), many=True)
+
+       self.assertEqual(response.data, serializer.data)
+
+    def testShowFriendGapsCross(self):
+
+        url = reverse('show-friend-gaps-cross', kwargs={'fpk':'friend10'})
+        data = {'user_id':self.myLogin, 'token':self.myToken.value}
+
+        friendship1 = Friendship(firstUser=self.me,secondUser=self.friend)
+        friendship1.save()
+        friendship2 = Friendship(firstUser=self.friend,secondUser=self.me)
+        friendship2.save()
+
+        finalSchedule = Gap.crossGaps(self.me.gap_set.all(), self.friend.gap_set.all() )
+        serializer = GapSerializer(finalSchedule, many=True)
+
+        response = self.client.get(url, data)
+
+        self.assertEqual(serializer.data, response.data)
+
+
+#    def testUpdateMyScheduleDay(self):
+
+#        weekday = 'tuesday'
+#        url = reverse('update-schedule-day')
+#        dayJSON = '{\\"AM91\\": true, \\"AM90\\": false, \\"AM111\\": true, \\"AM110\\": false, \\"PM61\\": true, \\"PM60\\": false, \\"PM21\\": true, \\"PM20\\": false, \\"PM41\\": false, \\"PM40\\": false, \\"AM80\\": false, \\"AM81\\": false, \\"AM100\\": false, \\"AM101\\": false, \\"AM71\\": false, \\"AM70\\": false, \\"PM10\\": false, \\"PM11\\": false, \\"PM31\\": false, \\"PM50\\": false, \\"PM51\\": false, \\"PM30\\": false, \\"PM121\\": false, \\"PM120\\": false}'
+#        data = {'login':self.myLogin, 'token':self.myToken.value, 'day': dayJSON, 'weekday': weekday}
+
+#        response = self.client.post(url, data, format='json')
+
+#        self.me = User.objects.get(login=self.myLogin)
+#        serializer = DaySerializer(getattr(self.me.schedule, weekday))
+
+#        self.assertEqual(response.data, serializer.data)
