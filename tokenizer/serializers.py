@@ -5,4 +5,4 @@ from tokenizer.models import Token
 class TokenSerializer(serializers.ModelSerializer):
     class Meta:
         model = Token
-        fields = ('value', 'owner', 'created_on')
+        fields = ('value', 'user', 'created_on')
