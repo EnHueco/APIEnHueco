@@ -26,7 +26,7 @@ class Authenticate(APIView):
         if(access_granted):
             finalUser = None
             try:
-                user = User.objects.get(user_id=user_id)
+                user = User.objects.get(login=user_id)
                 finalUser = user
                 # user already exists
 
@@ -48,7 +48,7 @@ class Authenticate(APIView):
                         lastNames = lastNames.replace(ch, '')
 
                 # CREATE and save User
-                newUser = User.create(user_id=user_id, firstNames=firstNames, lastNames=lastNames)
+                newUser = User.create(login=user_id, firstNames=firstNames, lastNames=lastNames)
                 newUser.save()
 
                 finalUser = newUser
