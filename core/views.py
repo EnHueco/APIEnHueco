@@ -34,7 +34,6 @@ class Authenticate(APIView):
                 # user doesn't exist
                 data = ldapWrapper.search(user_id)
                 # FALTA Revisar data...
-                user_id = user
 
                 deleteExtraChars = r'[\[\]\']'
 
