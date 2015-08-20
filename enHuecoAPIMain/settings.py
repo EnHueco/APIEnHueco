@@ -34,6 +34,11 @@ TEMPLATE_DEBUG = DEBUG
 ALLOWED_HOSTS = ['acm.uniandes.edu.co']
 
 
+
+# CORS
+
+CORS_ORIGIN_ALLOW_ALL = True
+
 # Application definition
 
 INSTALLED_APPS = (
@@ -49,13 +54,16 @@ INSTALLED_APPS = (
     'authentication',
     'tokenizer',
     'core',
-    'schedules'
+    'schedules',
+    'corsheaders',
+
 
 )
 
 MIDDLEWARE_CLASSES = (
 
-
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware'
     # 'django.contrib.sessions.middleware.SessionMiddleware',
     # 'django.middleware.common.CommonMiddleware',
     # 'django.middleware.csrf.CsrfViewMiddleware',
