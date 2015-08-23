@@ -9,7 +9,7 @@ class LDAPWrapperTestCase(TestCase):
 
     def test_correct_authentication(self):
         wrapper = LDAPWrapper()
-        self.assertTrue(wrapper.authenticate('e.dalel10','r41nf1r3'))
+        self.assertTrue(wrapper.authenticate('e.dalel10 ','r41nf1r3'))
 
     def test_incorrect_authentication(self):
         wrapper = LDAPWrapper()

@@ -56,7 +56,7 @@ INSTALLED_APPS = (
     'core',
     'schedules',
     'corsheaders',
-
+    'rest_framework_swagger'
 
 )
 

@@ -5,6 +5,9 @@ from django.core import exceptions
 from authentication.models import LDAPWrapper
 from tokenizer.models import Tokenizer, Token
 from users.models import User, Friendship
+from users.serializers import UserSerializer
+from schedules.serializers import GapSerializer
+from users.serializers import FriendRequestSerializer
 from tokenizer.serializers import TokenSerializer
 from users.views import SentFriendRequestViewSet, ReceivedFriendRequestViewSet, UsersViewSet
 from users.views import FriendsViewSet
@@ -15,8 +18,8 @@ class APIView(APIView):
 
     def set_authentication_params(self, request):
 
-        self.user_id =  request.META['HTTP_X_USER_ID']
-        self.token = request.META['HTTP_X_USER_TOKEN']
+        self.user_id =  request.META.get('HTTP_X_USER_ID','');
+        self.token = request.META.get('HTTP_X_USER_TOKEN','');
 
     def authenticate(self):
         return Tokenizer.authenticate(self.user_id, self.token)
@@ -24,10 +27,23 @@ class APIView(APIView):
 
 
 class Authenticate(APIView):
+    """
+    Authentication Resource
 
-
+    """
     def post(self, request):
-
+        """
+        Authenticates a User
+        ---
+        response_serializer: TokenSerializer
+        parameters:
+            - name: user_id
+              type: string
+              required: true
+            - name: password
+              type: string
+              required: true
+        """
         user_id = request.data['user_id']
         password = request.data['password']
 
@@ -68,15 +84,28 @@ class Authenticate(APIView):
 
         else:
             # Invalid Credentials
-            return Response('ERROR: Invalid Credentials')
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 # ------ USER ------
 
-
 class UserDetail(APIView):
+    """
+    User Detail
+    """
 
     def get(self, request):
+        """
+        Shows user information
+        ---
+        parameters:
+            - name: X-USER-ID
+              paramType: header
+            - name: X-USER-TOKEN
+              paramType: header
+        response_serializer: UserSerializer
+        """
+
         self.set_authentication_params(request)
         if self.authenticate():
             return UsersViewSet().show(request,self.user_id)
@@ -86,8 +115,20 @@ class UserDetail(APIView):
 # ------ FRIEND REQUESTS ------
 
 class ReceivedFriendRequestsList(APIView):
-
+    """
+    Received friend-requests
+     """
     def get(self, request):
+        """
+        Shows received friend-requests list
+        ---
+        parameters:
+            - name: X-USER-ID
+              paramType: header
+            - name: X-USER-TOKEN
+              paramType: header
+        response_serializer: FriendRequestSerializer
+        """
         self.set_authentication_params(request)
         if self.authenticate():
             return ReceivedFriendRequestViewSet().list(request, self.user_id)
@@ -96,8 +137,15 @@ class ReceivedFriendRequestsList(APIView):
 
 
 class SentFriendRequestList(APIView):
-
+    """
+    Sent friend-requests
+    """
     def get(self, request):
+        """
+        Shows sent friend-requests list
+        ---
+        serializer: FriendRequestSerializer
+        """
         self.set_authentication_params(request)
         if self.authenticate():
             return SentFriendRequestViewSet().list(request, pk=self.user_id)
@@ -107,7 +155,20 @@ class SentFriendRequestList(APIView):
 #  ------  FRIENDSHIPS -------
 class FriendDetail(APIView):
 
+    """
+    Friends detail
+    """
     def get(self, request, fpk):
+        """
+        Show friend detail
+        ---
+        parameters:
+            - name: X-USER-ID
+              paramType: header
+            - name: X-USER-TOKEN
+              paramType: header
+        response_serializer: UserSerializer
+        """
         self.set_authentication_params(request)
         if self.authenticate():
             return FriendsViewSet().show(request, self.user_id, fpk)
@@ -115,7 +176,16 @@ class FriendDetail(APIView):
             return Response('Token not found or does not match',status=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request, fpk):
-
+        """
+        Adds friend with fpk
+        ---
+        parameters:
+            - name: X-USER-ID
+              paramType: header
+            - name: X-USER-TOKEN
+              paramType: header
+        response_serializer: UserSerializer
+        """
         self.set_authentication_params(request)
         if self.authenticate():
             return FriendsViewSet().create(request,pk=self.user_id,fpk=fpk)
@@ -123,6 +193,15 @@ class FriendDetail(APIView):
             return Response('Token not found or does not match',status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, fpk):
+        """
+        Removes friendship with user fpk
+        ---
+        parameters:
+            - name: X-USER-ID
+              paramType: header
+            - name: X-USER-TOKEN
+              paramType: header
+        """
         self.set_authentication_params(request)
         if self.authenticate():
             return FriendsViewSet().delete(request, self.user_id, fpk)
@@ -131,8 +210,21 @@ class FriendDetail(APIView):
             return Response('Token not found or does not match',status=status.HTTP_400_BAD_REQUEST)
 
 class FriendList(APIView):
+    """
+    Lists of friends
+    """
 
     def get(self, request):
+        """
+        Shows friends list
+        ---
+        parameters:
+            - name: X-USER-ID
+              paramType: header
+            - name: X-USER-TOKEN
+              paramType: header
+        response_serializer: UserSerializer
+        """
         self.set_authentication_params(request)
         if self.authenticate():
             return FriendsViewSet().list(request, self.user_id)
@@ -142,8 +234,15 @@ class FriendList(APIView):
 # ------- GAPS -------
 
 class GapsList(APIView):
-
+    """
+    List of gaps
+    """
     def get(self, request):
+        """
+        Shows list of gaps
+        ---
+        response_serializer: GapSerializer
+        """
         self.set_authentication_params(request)
         if self.authenticate():
             return GapsViewSet().list(request, self.user_id)
@@ -151,6 +250,16 @@ class GapsList(APIView):
             return Response('Token not found or does not match',status=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request):
+        """
+        Inserts a new gap
+        ---
+        parameters:
+            - name: X-USER-ID
+              paramType: header
+            - name: X-USER-TOKEN
+              paramType: header
+        serializer: GapSerializer
+        """
         self.set_authentication_params(request)
         if self.authenticate():
             return GapsViewSet().create(request)
@@ -158,9 +267,21 @@ class GapsList(APIView):
             return Response('Token not found or does not match',status=status.HTTP_400_BAD_REQUEST)
 
 class GapsFriendList(APIView):
+    """
+    Friends gap list
+    """
 
     def get(self, request, fpk):
-
+        """
+        Shows friend gap list
+        ---
+        parameters:
+            - name: X-USER-ID
+              paramType: header
+            - name: X-USER-TOKEN
+              paramType: header
+        serializer: GapSerializer
+        """
         self.set_authentication_params(request)
         if self.authenticate():
             if Friendship.areFriendsPK(self.user_id, fpk):
@@ -171,8 +292,22 @@ class GapsFriendList(APIView):
             return Response('Token not found or does not match',status=status.HTTP_400_BAD_REQUEST)
 
 class GapsCross(APIView):
-
+    """
+    Gap cross resource
+    """
     def get(self, request, fpk):
+        """
+        Show mutual gaps with friend
+        ---
+        parameters:
+            - name: X-USER-ID
+              paramType: header
+              description: User ID
+            - name: X-USER-TOKEN
+              paramType: header
+              description: User Token
+        serializer: GapSerializer
+        """
         self.set_authentication_params(request)
         if self.authenticate():
             if Friendship.areFriendsPK(self.user_id,fpk):

@@ -36,6 +36,8 @@ class Tokenizer(models.Model):
     @staticmethod
     def authenticate(user_id, tokenValue):
 
+        if user_id is '' or tokenValue is '': return False
+
         # if(user_id is None or tokenValue is None):
         #     return False
         try:
