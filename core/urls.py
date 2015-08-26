@@ -15,6 +15,7 @@ urlpatterns = [
     url(r'^me', views.UserDetail.as_view(), name='show-me'),
 # SCHEDULES
     url(r'^gaps/$', views.GapsList.as_view(), name='show-gaps'),
+    url(r'^gaps/(?P<gid>[0-9]+)/$', views.GapsDetail.as_view(), name='gap-detail'),
     url(r'^gaps/(?P<fpk>[a-z]+(\.)?[a-z]+[0-9]*)/$', views.GapsFriendList.as_view(), name='show-friend-gaps'),
     url(r'^gaps/cross/(?P<fpk>[a-z]+(\.)?[a-z]+[0-9]*)/$', views.GapsCross.as_view(), name='show-friend-gaps-cross'),
 

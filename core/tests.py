@@ -274,6 +274,25 @@ class SchedulesTestCase(APITestCase):
 
         self.assertEqual(serializer.data, response.data)
 
+    def testUpdateGap(self):
+
+
+        newGap = Gap(day='1',start_hour='080',end_hour='170',user=self.me, id=1)
+        serializer = GapSerializer(newGap)
+        gap = serializer.data
+
+        url = reverse('gap-detail', kwargs={'gid': '1'})
+        data = {'HTTP_X_USER_ID':self.myLogin, 'HTTP_X_USER_TOKEN':self.myToken.value}
+
+        response = self.client.put(url, data=gap, **data)
+
+        # Returns the new Gap
+        self.assertEqual(serializer.data['start_hour'], response.data['start_hour'])
+        self.assertEqual(serializer.data['end_hour'], response.data['end_hour'])
+        self.assertEqual(serializer.data['day'], response.data['day'])
+        self.assertEqual(serializer.data['user'], response.data['user'])
+
+
 
 #    def testUpdateMyScheduleDay(self):
 

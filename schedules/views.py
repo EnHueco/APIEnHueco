@@ -29,3 +29,14 @@ class GapsViewSet(viewsets.ViewSet):
 
         ser = GapSerializer(sharedGaps, many=True)
         return Response(ser.data)
+
+    def update(self, request, pk, id):
+
+        gap = Gap.objects.filter(user_id=pk, id=id).first()
+        if(gap is not None):
+            serializer = GapSerializer(gap, data=request.data)
+            serializer.is_valid()
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response("")

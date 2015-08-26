@@ -233,6 +233,23 @@ class FriendList(APIView):
 
 # ------- GAPS -------
 
+class GapsDetail(APIView):
+    """
+    Gap detail
+    """
+    def put(self, request, gid):
+        """
+        Updates a Gap with ID gid
+        ---
+        response_serializer: GapSerializer
+        """
+        self.set_authentication_params(request)
+        if self.authenticate():
+            return GapsViewSet().update(request, self.user_id, gid)
+        else:
+            return Response('Token not found or does not match',status=status.HTTP_400_BAD_REQUEST)
+
+
 class GapsList(APIView):
     """
     List of gaps
