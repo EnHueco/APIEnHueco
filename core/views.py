@@ -1,3 +1,4 @@
+import datetime
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, viewsets
@@ -5,6 +6,7 @@ from django.core import exceptions
 from authentication.models import LDAPWrapper
 from tokenizer.models import Tokenizer, Token
 from users.models import User, Friendship
+from schedules.models import Gap
 from users.serializers import UserSerializer
 from schedules.serializers import GapSerializer
 from users.serializers import FriendRequestSerializer
@@ -231,6 +233,35 @@ class FriendList(APIView):
         else:
             return Response('Token not found or does not match',status=status.HTTP_400_BAD_REQUEST)
 
+class FriendListGapNow(APIView):
+    """
+    Lists of friends with gap now
+    """
+
+    def get(self, request):
+        """
+        Shows friends list with gap now
+        ---
+        parameters:
+            - name: X-USER-ID
+              paramType: header
+            - name: X-USER-TOKEN
+              paramType: header
+        response_serializer: UserSerializer
+        """
+        self.set_authentication_params(request)
+        if self.authenticate():
+
+            actualDay = str(datetime.date.today()+1)
+
+            gaps = Gap.objects.filter(user__friends__contains=self.user_id, day=actualDay, )
+
+
+            return FriendsViewSet().list(request, self.user_id)
+        else:
+            return Response('Token not found or does not match',status=status.HTTP_400_BAD_REQUEST)
+
+
 # ------- GAPS -------
 
 class GapsDetail(APIView):
@@ -282,6 +313,7 @@ class GapsList(APIView):
             return GapsViewSet().create(request)
         else:
             return Response('Token not found or does not match',status=status.HTTP_400_BAD_REQUEST)
+
 
 class GapsFriendList(APIView):
     """
