@@ -14,6 +14,7 @@ from tokenizer.serializers import TokenSerializer
 from users.views import SentFriendRequestViewSet, ReceivedFriendRequestViewSet, UsersViewSet
 from users.views import FriendsViewSet
 from schedules.views import GapsViewSet
+from django.db.models import Q
 
 # Method that authenticates user if valid token and user_id is given
 class APIView(APIView):
@@ -260,6 +261,29 @@ class FriendListGapNow(APIView):
             return FriendsViewSet().list(request, self.user_id)
         else:
             return Response('Token not found or does not match',status=status.HTTP_400_BAD_REQUEST)
+
+
+# ------- USERS -------
+
+class UserList(APIView):
+    """
+    User detail
+    """
+    def get(self, request, searchID):
+        """
+        Shows users with gap now
+        ---
+        parameters:
+            - name: X-USER-ID
+              paramType: header
+            - name: X-USER-TOKEN
+              paramType: header
+        response_serializer: UserSerializer
+        """
+        users = User.objects.filter(Q(login__contains=searchID) | Q(firstNames__contains=searchID) | Q(lastNames__contains=searchID))
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)
+
 
 
 # ------- GAPS -------

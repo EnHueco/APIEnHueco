@@ -13,6 +13,8 @@ urlpatterns = [
     url(r'^auth/$', views.Authenticate.as_view()),
 # ME
     url(r'^me', views.UserDetail.as_view(), name='show-me'),
+# USERS
+    url(r'^users/(?P<searchID>[a-zA-Z0-9\.]+)', views.UserList.as_view(), name='search-users'),
 # SCHEDULES
     url(r'^gaps/$', views.GapsList.as_view(), name='show-gaps'),
     url(r'^gaps/(?P<gid>[0-9]+)/$', views.GapsDetail.as_view(), name='gap-detail'),
@@ -23,7 +25,7 @@ urlpatterns = [
 # FRIEND REQUESTS
     url(r'^requests/sent/$', views.SentFriendRequestList.as_view(), name='sent-friend-requests-list'),
     url(r'^requests/received/$', views.ReceivedFriendRequestsList.as_view(), name='received-friend-requests-list'),
-# FRIENDSc
+# FRIENDS
     url(r'^friends/$', views.FriendList.as_view(), name='friend-list'),
     url(r'^friends/(?P<fpk>[a-z]+(\.)?[a-z]+[0-9]*)/$', views.FriendDetail.as_view(), name='friend-detail'),
 ]
