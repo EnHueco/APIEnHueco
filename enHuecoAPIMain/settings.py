@@ -115,6 +115,8 @@ STATIC_URL = '/static/'
 USER_MODEL = 'users.User'
 TOKENIZER_MODEL = 'tokenizer.Tokenizer'
 
+STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
+# ./manage.py collectstatic
 
 
