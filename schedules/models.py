@@ -10,17 +10,17 @@ import json
 
 class Gap(models.Model):
 
-    # Time values
-    weekday = models.CharField(max_length=2)
-    start_hour = models.CharField(max_length=5)
-    end_hour = models.CharField(max_length=5)
-
     # Event type -> Used for further improvements on Gap class
     type = models.CharField(max_length=10)
 
     # Optional Values
     name = models.TextField()
     location = models.TextField()
+
+    # Time values
+    weekday = models.CharField(max_length=2)
+    start_hour = models.CharField(max_length=5)
+    end_hour = models.CharField(max_length=5)
 
     # Control Attributes
     created_on = models.DateTimeField(default=timezone.now)
