@@ -62,7 +62,7 @@ class Gap(models.Model):
 
         # Si son distintos dias
 
-        if(self.day != gap2.day):
+        if(self.weekday != gap2.weekday):
             return None
 
         # Si no se cruzan
@@ -81,5 +81,5 @@ class Gap(models.Model):
             else:
                 endhour = gap2.end_hour
 
-            return Gap(day=self.day, start_hour=starthour, end_hour=endhour)
+            return Gap(weekday=self.weekday, start_hour=starthour, end_hour=endhour)
 

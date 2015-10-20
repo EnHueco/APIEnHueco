@@ -188,9 +188,9 @@ class SchedulesTestCase(APITestCase):
         self.me = User.create(login=self.myLogin, firstNames='testNames', lastNames='testLastNames')
         self.me.save()
 
-        self.gap1 = Gap.objects.create(day="1",start_hour='100',end_hour='153',user=self.me)
-        self.gap2 = Gap.objects.create(day="2",start_hour='100',end_hour='153',user=self.me)
-        self.gap3 = Gap.objects.create(day="3",start_hour='100',end_hour='153',user=self.me)
+        self.gap1 = Gap.objects.create(weekday="1",start_hour='100',end_hour='153',user=self.me)
+        self.gap2 = Gap.objects.create(weekday="2",start_hour='100',end_hour='153',user=self.me)
+        self.gap3 = Gap.objects.create(weekday="3",start_hour='100',end_hour='153',user=self.me)
 
 
         self.myToken = Tokenizer.assignToken(self.me)
@@ -198,9 +198,9 @@ class SchedulesTestCase(APITestCase):
         self.friend = User.create(login=self.friendLogin, firstNames='friendName', lastNames='friendLast')
         self.friend.save()
 
-        self.fgap1 = Gap.objects.create(day="1",start_hour='100',end_hour='153',user=self.friend)
-        self.fgap2 = Gap.objects.create(day="2",start_hour='100',end_hour='153',user=self.friend)
-        self.fgap3 = Gap.objects.create(day="3",start_hour='100',end_hour='153',user=self.friend)
+        self.fgap1 = Gap.objects.create(weekday="1",start_hour='100',end_hour='153',user=self.friend)
+        self.fgap2 = Gap.objects.create(weekday="2",start_hour='100',end_hour='153',user=self.friend)
+        self.fgap3 = Gap.objects.create(weekday="3",start_hour='100',end_hour='153',user=self.friend)
 
 
 
@@ -216,13 +216,13 @@ class SchedulesTestCase(APITestCase):
 
     def testAddGap(self):
 
-        newGap = Gap(day='5',start_hour='100',end_hour='153',user=self.me)
+        newGap = Gap(weekday='5',start_hour='100',end_hour='153',user=self.me)
         serializer = GapSerializer(newGap)
 
         gapCount = User.objects.get(login=self.me.login).gap_set.all().count()
         url = reverse('show-gaps')
         data = {'HTTP_X_USER_ID':self.myLogin, 'HTTP_X_USER_TOKEN':self.myToken.value}
-        gap = {'day':'5','start_hour':'100','end_hour':'153','user':self.me}
+        gap = {'weekday':'5','start_hour':'100','end_hour':'153','user':self.me}
 
         response = self.client.post(url, data=gap, **data)
 
@@ -234,7 +234,7 @@ class SchedulesTestCase(APITestCase):
         # Returns the new Gap
         self.assertEqual(serializer.data['start_hour'], response.data['start_hour'])
         self.assertEqual(serializer.data['end_hour'], response.data['end_hour'])
-        self.assertEqual(serializer.data['day'], response.data['day'])
+        self.assertEqual(serializer.data['weekday'], response.data['weekday'])
         self.assertEqual(serializer.data['user'], response.data['user'])
 
 
@@ -277,7 +277,7 @@ class SchedulesTestCase(APITestCase):
     def testUpdateGap(self):
 
 
-        newGap = Gap(day='1',start_hour='080',end_hour='170',user=self.me, id=1)
+        newGap = Gap(name="", location ="", type="", weekday='1',start_hour='080',end_hour='170',user=self.me, id=1)
         serializer = GapSerializer(newGap)
         gap = serializer.data
 
@@ -289,7 +289,7 @@ class SchedulesTestCase(APITestCase):
         # Returns the new Gap
         self.assertEqual(serializer.data['start_hour'], response.data['start_hour'])
         self.assertEqual(serializer.data['end_hour'], response.data['end_hour'])
-        self.assertEqual(serializer.data['day'], response.data['day'])
+        self.assertEqual(serializer.data['weekday'], response.data['weekday'])
         self.assertEqual(serializer.data['user'], response.data['user'])
 
 
