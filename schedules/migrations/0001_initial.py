@@ -16,9 +16,12 @@ class Migration(migrations.Migration):
             name='Gap',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('day', models.CharField(max_length=2)),
+                ('weekday', models.CharField(max_length=2)),
                 ('start_hour', models.CharField(max_length=5)),
                 ('end_hour', models.CharField(max_length=5)),
+                ('type', models.CharField(max_length=10)),
+                ('name', models.TextField()),
+                ('location', models.TextField()),
                 ('created_on', models.DateTimeField(default=django.utils.timezone.now)),
                 ('updated_on', models.DateTimeField(auto_now=True)),
                 ('user', models.ForeignKey(to='users.User')),

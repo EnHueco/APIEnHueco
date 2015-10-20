@@ -118,5 +118,8 @@ TOKENIZER_MODEL = 'tokenizer.Tokenizer'
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
 # ./manage.py collectstatic
+# chmod 664 ~/enhueco/db.sqlite3
+# sudo chown :www-data ~/enhueco/db.sqlite3
+# sudo chown :www-data ~/enhueco
 
 
