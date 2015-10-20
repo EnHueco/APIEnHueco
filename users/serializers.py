@@ -19,8 +19,7 @@ class FriendRequestSerializer(serializers.ModelSerializer):
         fields = ('fromUser','toUser', 'created_on')
 
 class FriendshipSerializer(serializers.ModelSerializer):
-    fromUser = UserSerializer()
-    toUser = UserSerializer()
+    secondUser = UserSerializer()
     class Meta:
         model = Friendship
         fields = ('firstUser','secondUser', 'created_on')

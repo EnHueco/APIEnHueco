@@ -12,7 +12,7 @@ urlpatterns = [
 # AUTHENTICATION
     url(r'^auth/$', views.Authenticate.as_view()),
 # ME
-    url(r'^me', views.UserDetail.as_view(), name='show-me'),
+    url(r'^me/$', views.UserDetail.as_view(), name='show-me'),
 # USERS
     url(r'^users/(?P<searchID>[a-zA-Z0-9\.]+)', views.UserList.as_view(), name='search-users'),
 # SCHEDULES
