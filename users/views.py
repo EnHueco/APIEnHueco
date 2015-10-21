@@ -1,12 +1,11 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
-from users.serializers import UserSerializer, FriendRequestSerializer, FriendshipSerializer
+from users.serializers import UserSerializer, FriendRequestSerializer, FriendshipSerializer, UserSerializerWithSchedule
 from users.models import User, FriendRequest, Friendship
 from django.core import exceptions
 
-
 #-------------
-from enHuecoAPI.users.serializers import UserSerializerWithSchedule
+
 
 
 class UsersViewSet(viewsets.ViewSet):
