@@ -6,6 +6,8 @@ from django.core import exceptions
 
 
 #-------------
+from enHuecoAPI.users.serializers import UserSerializerWithSchedule
+
 
 class UsersViewSet(viewsets.ViewSet):
 
@@ -14,6 +16,7 @@ class UsersViewSet(viewsets.ViewSet):
         user = User.objects.filter(login=pk).first()
         serializer = UserSerializer(user, allow_null=True)
         return Response(serializer.data)
+
 
 class FriendsViewSet(viewsets.ViewSet):
 
@@ -26,7 +29,7 @@ class FriendsViewSet(viewsets.ViewSet):
 
     def list(self, request, pk):
         friends = User.objects.filter(login=pk).first().friends.all()
-        serializer = UserSerializer(friends, many=True)
+        serializer = UserSerializerWithSchedule(friends, many=True)
         return Response(serializer.data)
 
 
