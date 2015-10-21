@@ -26,7 +26,7 @@ class FriendshipSerializer(serializers.ModelSerializer):
         fields = ('firstUser','secondUser', 'created_on')
 
 
-# Mixed serializer
+# Mixed serializers
 class UserSerializerWithSchedule(serializers.ModelSerializer):
     gap_set = GapSerializer(many=True)
     class Meta:
