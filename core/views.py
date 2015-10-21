@@ -15,6 +15,7 @@ from users.views import SentFriendRequestViewSet, ReceivedFriendRequestViewSet, 
 from users.views import FriendsViewSet
 from schedules.views import GapsViewSet
 from django.db.models import Q
+import string
 
 # Method that authenticates user if valid token and user_id is given
 class APIView(APIView):
@@ -67,8 +68,8 @@ class Authenticate(APIView):
 
                 deleteExtraChars = r'[\[\]\']'
 
-                firstNames = data['givenName'][0].strip()
-                lastNames = data['sn'][0].strip()
+                firstNames = string.capwords(data['givenName'][0].strip())
+                lastNames = string.capwords(data['sn'][0].strip())
 
                 # CREATE and save User
                 newUser = User.create(login=user_id, firstNames=firstNames, lastNames=lastNames)
