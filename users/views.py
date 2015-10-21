@@ -6,14 +6,12 @@ from django.core import exceptions
 
 #-------------
 
-
-
 class UsersViewSet(viewsets.ViewSet):
 
     def show(self, request, pk):
 
         user = User.objects.filter(login=pk).first()
-        serializer = UserSerializer(user, allow_null=True)
+        serializer = UserSerializerWithSchedule(user, allow_null=True)
         return Response(serializer.data)
 
 

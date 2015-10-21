@@ -60,3 +60,4 @@ target/
 
 # Test Database
 *.sqlite3
+.idea

@@ -6,4 +6,21 @@ import schedules.models as models
 class GapSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Gap
-        fields = ('type', 'name', 'location', 'weekday','start_hour','end_hour','updated_on','user')
+        fields = (
+            'type',
+            'name',
+            'location',
+            'weekday',
+            'start_hour',
+            'end_hour',
+            'updated_on',
+            'user')
+
+        extra_kwargs = {
+            'name': {
+                'read_only': True,
+            },
+            'location': {
+                'read_only': True,
+            },
+        }
