@@ -18,7 +18,9 @@ class Gap(models.Model):
     location = models.TextField()
 
     # Time values
-    weekday = models.CharField(max_length=2)
+    start_hour_weekday = models.CharField(max_length=2)
+    end_hour_weekday = models.CharField(max_length=2)
+
     start_hour = models.CharField(max_length=5)
     end_hour = models.CharField(max_length=5)
 
@@ -53,6 +55,7 @@ class Gap(models.Model):
     def __str__(self):
         return "{} : {} -> {}".format(self.user, self.start_hour, self.end_hour)
 
+    # TODO: Update and fix to make it work with new 'end_hour_weekday' field.
     def cross(self, gap2):
         """
         :type gap2: Gap
@@ -62,7 +65,7 @@ class Gap(models.Model):
 
         # Si son distintos dias
 
-        if(self.weekday != gap2.weekday):
+        if(self.start_hour_weekday != gap2.start_hour_weekday):
             return None
 
         # Si no se cruzan
@@ -81,5 +84,5 @@ class Gap(models.Model):
             else:
                 endhour = gap2.end_hour
 
-            return Gap(weekday=self.weekday, start_hour=starthour, end_hour=endhour)
+            return Gap(start_hour_weekday=self.start_hour_weekday, start_hour=starthour, end_hour=endhour)
 

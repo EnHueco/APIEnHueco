@@ -13,8 +13,8 @@ class GapTestCase(TestCase):
 
 
     def test_gap_cross_different_days(self):
-        gap1 = Gap(weekday="1",start_hour='090',end_hour='130')
-        gap2 = Gap(weekday="2",start_hour='090',end_hour='130')
+        gap1 = Gap(start_hour_weekday="1",start_hour='090',end_hour='130')
+        gap2 = Gap(start_hour_weekday="2",start_hour='090',end_hour='130')
 
         sharedGap = gap1.cross(gap2)
         self.assertEqual(sharedGap, None)
@@ -22,8 +22,8 @@ class GapTestCase(TestCase):
 
     def test_gap_cross_not_overlapping(self):
 
-        gap1 = Gap(weekday="1",start_hour='090',end_hour='130')
-        gap2 = Gap(weekday="1",start_hour='140',end_hour='153')
+        gap1 = Gap(start_hour_weekday="1",start_hour='090',end_hour='130')
+        gap2 = Gap(start_hour_weekday="1",start_hour='140',end_hour='153')
 
         sharedGap = gap1.cross(gap2)
         self.assertEqual(sharedGap, None)
@@ -33,8 +33,8 @@ class GapTestCase(TestCase):
         """
         Case 1: Gaps are overlapped but not contained
         """
-        gap1 = Gap(weekday="1",start_hour='083',end_hour='113')
-        gap2 = Gap(weekday="1",start_hour='100',end_hour='130')
+        gap1 = Gap(start_hour_weekday="1",start_hour='083',end_hour='113')
+        gap2 = Gap(start_hour_weekday="1",start_hour='100',end_hour='130')
         sharedGap = gap1.cross(gap2)
 
         self.assertEqual(sharedGap.start_hour, gap2.start_hour)
@@ -50,8 +50,8 @@ class GapTestCase(TestCase):
         """
         Case 2: One gap is contained in the other
         """
-        gap1 = Gap(weekday="1",start_hour='083',end_hour='153')
-        gap2 = Gap(weekday="1",start_hour='100',end_hour='130')
+        gap1 = Gap(start_hour_weekday="1",start_hour='083',end_hour='153')
+        gap2 = Gap(start_hour_weekday="1",start_hour='100',end_hour='130')
         sharedGap = gap1.cross(gap2)
 
         self.assertEqual(sharedGap.start_hour, gap2.start_hour)
@@ -67,8 +67,8 @@ class GapTestCase(TestCase):
         """
         Case 3: Gaps are exactly contained in each other
         """
-        gap1 = Gap(weekday="1",start_hour='100',end_hour='170')
-        gap2 = Gap(weekday="1",start_hour='100',end_hour='170')
+        gap1 = Gap(start_hour_weekday="1",start_hour='100',end_hour='170')
+        gap2 = Gap(start_hour_weekday="1",start_hour='100',end_hour='170')
         sharedGap = gap1.cross(gap2)
 
         self.assertEqual(sharedGap.start_hour, gap2.start_hour)
