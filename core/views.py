@@ -114,7 +114,7 @@ class UserDetail(APIView):
         if self.authenticate():
             return UsersViewSet().show(request,self.user_id)
         else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 # ------ FRIEND REQUESTS ------
 
@@ -137,7 +137,7 @@ class ReceivedFriendRequestsList(APIView):
         if self.authenticate():
             return ReceivedFriendRequestViewSet().list(request, self.user_id)
         else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
 class SentFriendRequestList(APIView):
@@ -154,7 +154,7 @@ class SentFriendRequestList(APIView):
         if self.authenticate():
             return SentFriendRequestViewSet().list(request, pk=self.user_id)
         else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 #  ------  FRIENDSHIPS -------
 class FriendDetail(APIView):
@@ -177,7 +177,7 @@ class FriendDetail(APIView):
         if self.authenticate():
             return FriendsViewSet().show(request, self.user_id, fpk)
         else:
-            return Response('Token not found or does not match',status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
     def post(self, request, fpk):
         """
@@ -194,7 +194,7 @@ class FriendDetail(APIView):
         if self.authenticate():
             return FriendsViewSet().create(request,pk=self.user_id,fpk=fpk)
         else:
-            return Response('Token not found or does not match',status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
     def delete(self, request, fpk):
         """
@@ -211,13 +211,12 @@ class FriendDetail(APIView):
             return FriendsViewSet().delete(request, self.user_id, fpk)
         else:
             #
-            return Response('Token not found or does not match',status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 class FriendList(APIView):
     """
     Lists of friends
     """
-
     def get(self, request):
         """
         Shows friends list
@@ -233,7 +232,47 @@ class FriendList(APIView):
         if self.authenticate():
             return FriendsViewSet().list(request, self.user_id)
         else:
-            return Response('Token not found or does not match',status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+    def post(self, request):
+        """
+        Shows friends list, those which info were received.
+        ---
+        parameters:
+            - name: X-USER-ID
+              paramType: header
+            - name: X-USER-TOKEN
+              paramType: header
+        response_serializer: UserSerializer
+        """
+        self.set_authentication_params(request)
+        if self.authenticate():
+            return FriendsViewSet().list(request, self.user_id)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+
+
+class FriendListSync(APIView):
+    """
+    Lists of friends with synchronization information
+    """
+    def get(self, request):
+        """
+        Shows friends list synchronization information
+        ---
+        parameters:
+            - name: X-USER-ID
+              paramType: header
+            - name: X-USER-TOKEN
+              paramType: header
+        response_serializer: UserSyncSerializer
+        """
+        self.set_authentication_params(request)
+        if self.authenticate():
+            return FriendsViewSet().list(request, self.user_id, isSync=True)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 class FriendListGapNow(APIView):
     """
@@ -261,7 +300,7 @@ class FriendListGapNow(APIView):
 
             return FriendsViewSet().list(request, self.user_id)
         else:
-            return Response('Token not found or does not match',status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
 # ------- USERS -------
@@ -281,9 +320,13 @@ class UserList(APIView):
               paramType: header
         response_serializer: UserSerializer
         """
-        users = User.objects.filter(Q(login__contains=searchID) | Q(firstNames__contains=searchID) | Q(lastNames__contains=searchID))
-        serializer = UserSerializer(users, many=True)
-        return Response(serializer.data)
+        self.set_authentication_params(request)
+        if self.authenticate():
+            users = User.objects.filter(Q(login__contains=searchID) | Q(firstNames__contains=searchID) | Q(lastNames__contains=searchID))
+            serializer = UserSerializer(users, many=True)
+            return Response(serializer.data)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
 
@@ -303,7 +346,7 @@ class GapsDetail(APIView):
         if self.authenticate():
             return GapsViewSet().update(request, self.user_id, gid)
         else:
-            return Response('Token not found or does not match',status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
 class GapsList(APIView):
@@ -320,7 +363,7 @@ class GapsList(APIView):
         if self.authenticate():
             return GapsViewSet().list(request, self.user_id)
         else:
-            return Response('Token not found or does not match',status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
     def post(self, request):
         """
@@ -337,7 +380,7 @@ class GapsList(APIView):
         if self.authenticate():
             return GapsViewSet().create(request)
         else:
-            return Response('Token not found or does not match',status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
 class GapsFriendList(APIView):
@@ -361,9 +404,9 @@ class GapsFriendList(APIView):
             if Friendship.areFriendsPK(self.user_id, fpk):
                 return GapsViewSet().list(request, fpk)
             else:
-                return Response('Users are not friends',status=status.HTTP_400_BAD_REQUEST)
+                return Response(status=status.HTTP_403_FORBIDDEN)
         else:
-            return Response('Token not found or does not match',status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 class GapsCross(APIView):
     """
@@ -387,9 +430,9 @@ class GapsCross(APIView):
             if Friendship.areFriendsPK(self.user_id,fpk):
                 return GapsViewSet().cross(request, pk1=self.user_id, pk2=fpk)
             else:
-                return Response('Users are not friends',status=status.HTTP_400_BAD_REQUEST)
+                return Response(status=status.HTTP_403_FORBIDDEN)
         else:
-            return Response('Token not found or does not match',status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 """
 class UpdateMySchedule(APIView):

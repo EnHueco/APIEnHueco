@@ -1,14 +1,16 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
-from users.serializers import UserSerializer, FriendRequestSerializer, FriendshipSerializer, UserSerializerWithSchedule
+from users.serializers import *
 from users.models import User, FriendRequest, Friendship
 from django.core import exceptions
+from django.db.models import Q
+
 
 #-------------
 
 class UsersViewSet(viewsets.ViewSet):
 
-    def show(self, request, pk):
+    def show(self, request, pk, isSync=False):
 
         user = User.objects.filter(login=pk).first()
         serializer = UserSerializerWithSchedule(user, allow_null=True)
@@ -24,9 +26,24 @@ class FriendsViewSet(viewsets.ViewSet):
         else:
             return Response("ERROR: Users are not friends")
 
-    def list(self, request, pk):
-        friends = User.objects.filter(login=pk).first().friends.all()
-        serializer = UserSerializerWithSchedule(friends, many=True)
+    def list(self, request, pk, isSync=False):
+
+        friendsQuery = User.objects.filter(login=pk).first().friends
+
+        serializer = UserIDSerializer(data=request.data)
+        # Filter requested friends, if any.
+        if serializer.is_valid():
+            my_filter_qs = Q()
+            for login in serializer.validated_data:
+                my_filter_qs = my_filter_qs | Q(login=login)
+            friendsQuery = friendsQuery.filter(my_filter_qs)
+
+        friends = friendsQuery.all()
+
+        if(isSync):
+            serializer = UserSyncSerializer(friends, many=True)
+        else:
+            serializer = UserSerializerWithSchedule(friends, many=True)
         return Response(serializer.data)
 
 

@@ -20,16 +20,22 @@ class Gap(models.Model):
     # Time values
     start_hour_weekday = models.CharField(max_length=2)
     end_hour_weekday = models.CharField(max_length=2)
-
     start_hour = models.CharField(max_length=5)
     end_hour = models.CharField(max_length=5)
 
     # Control Attributes
-    created_on = models.DateTimeField(default=timezone.now)
+    created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
 
     # Foreign Key
     user = models.ForeignKey(settings.USER_MODEL)
+
+    def save(self, *args, **kwargs):
+        super(Gap, self).save(*args, **kwargs)
+
+        # Set new user schedule updated on
+        self.user.schedule_updated_on = self.updated_on
+        self.user.save(update_fields=["schedule_updated_on"])
 
     @classmethod
     def create(cls, day, start_hour, end_hour, user):

@@ -9,14 +9,17 @@ class User(models.Model):
     login = models.CharField(max_length=30, primary_key=True)
     firstNames = models.CharField(max_length=50)
     lastNames = models.CharField(max_length=50)
+    phoneNumber = models.CharField(max_length=30)
     imageURL = models.CharField(max_length=200)
 
+    # Relationship handlers
+    schedule_updated_on = models.DateTimeField(default=timezone.now)
+
     # Control Attributes
-    created_on = models.DateTimeField(default=timezone.now)
-    lastUpdated_on = models.DateTimeField(auto_now=True)
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
 
-    # Relationships
-
+    # Relationship
     friends = models.ManyToManyField('self', symmetrical=False, related_name='friends+', through='Friendship')
     requests_sent= models.ManyToManyField('self', through='FriendRequest',symmetrical=False, related_name='requests_received')
 
@@ -40,7 +43,7 @@ class FriendRequest(models.Model):
 
     # Control Attributes
     created_on = models.DateTimeField(default=timezone.now)
-    lastUpdated_on = models.DateTimeField(auto_now=True)
+    # lastUpdated_on = models.DateTimeField(auto_now=True)
 
 class Friendship(models.Model):
 

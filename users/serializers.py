@@ -5,11 +5,21 @@ from users.models import User, FriendRequest, Friendship
 from schedules.serializers import GapSerializer
 from rest_framework import serializers
 
+# --- USER ---
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('login', 'firstNames', 'lastNames', 'imageURL', 'lastUpdated_on')
+        exclude = ('created_on', 'friends', 'requests_sent')
 
+class UserSyncSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('login', 'schedule_updated_on', 'updated_on')
+
+class UserIDSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('login', )
 
 class FriendRequestSerializer(serializers.ModelSerializer):
 
@@ -17,14 +27,13 @@ class FriendRequestSerializer(serializers.ModelSerializer):
     toUser = UserSerializer()
     class Meta:
         model = FriendRequest
-        fields = ('fromUser','toUser', 'created_on')
+        fields = ('fromUser','toUser')
 
 class FriendshipSerializer(serializers.ModelSerializer):
     secondUser = UserSerializer()
     class Meta:
         model = Friendship
-        fields = ('firstUser','secondUser', 'created_on')
-
+        fields = ('firstUser','secondUser')
 
 # Mixed serializers
 class UserSerializerWithSchedule(serializers.ModelSerializer):
@@ -32,4 +41,4 @@ class UserSerializerWithSchedule(serializers.ModelSerializer):
     class Meta:
         model = User
         depth = 1
-        fields = ('login', 'firstNames', 'lastNames', 'imageURL', 'lastUpdated_on', 'gap_set')
+        exclude = ('created_on', 'friends', 'requests_sent')

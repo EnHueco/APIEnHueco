@@ -1,5 +1,7 @@
 from django.test import TestCase
 from schedules.models import Gap
+from users.models import User
+
 # Create your tests here.
 
 
@@ -78,3 +80,18 @@ class GapTestCase(TestCase):
 
         self.assertEqual(sharedGap.start_hour, gap2.start_hour)
         self.assertEqual(sharedGap.end_hour, gap2.end_hour)
+
+
+
+class GapUserTestCase(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create(login="test")
+
+    def test_gap_creates_schedule_updated_on_correct(self):
+        # print("UPDATED_ON" + str(self.user.updated_on))
+        # print("SCHEDULE_UPDATED_ON" + str(self.user.schedule_updated_on))
+        gap = Gap.objects.create(user=self.user)
+        # print("UPDATED_ON" + str(self.user.updated_on))
+        # print("SCHEDULE_UPDATED_ON" + str(self.user.schedule_updated_on))
+        self.assertEqual(self.user.schedule_updated_on, gap.updated_on)

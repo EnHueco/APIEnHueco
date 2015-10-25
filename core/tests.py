@@ -10,7 +10,7 @@ from users.models import User, FriendRequest, Friendship
 from schedules.models import Gap
 # IMPORT SERIALIZERS
 from schedules.serializers import GapSerializer
-from users.serializers import UserSerializer, FriendRequestSerializer, FriendshipSerializer
+from users.serializers import *
 from rest_framework.test import  APITestCase
 
 # Create your tests here.
@@ -112,6 +112,70 @@ class FriendshipTestCase(APITestCase):
         self.friend.save()
 
 
+    def testShowAllSyncFriends(self):
+
+        friendship1 = Friendship(firstUser=self.me,secondUser=self.friend)
+        friendship2 = Friendship(firstUser=self.friend,secondUser=self.me)
+
+        friendship1.save()
+        friendship2.save()
+
+        serializer = UserSyncSerializer(self.me.friends.all(), many=True)
+
+        url = reverse('friend-list-sync')
+        data = {'HTTP_X_USER_ID':self.myLogin, 'HTTP_X_USER_TOKEN':self.myToken.value}
+        encodedFriend = {'login': self.friend.login}
+
+        response = self.client.get(url, format='json', **data)
+
+        self.assertEqual(response.data, serializer.data)
+
+        pass
+
+
+    def testShowAllFriends(self):
+
+        friendship1 = Friendship(firstUser=self.me,secondUser=self.friend)
+        friendship2 = Friendship(firstUser=self.friend,secondUser=self.me)
+
+        friendship1.save()
+        friendship2.save()
+
+        serializer = UserSerializerWithSchedule(self.me.friends.all(), many=True)
+
+        url = reverse('friend-list')
+        data = {'HTTP_X_USER_ID':self.myLogin, 'HTTP_X_USER_TOKEN':self.myToken.value}
+        encodedFriend = {'login': self.friend.login}
+
+        response = self.client.get(url, format='json', **data)
+
+        self.assertEqual(response.data, serializer.data)
+
+        pass
+
+    def testShowSomeFriends(self):
+
+        friendship1 = Friendship(firstUser=self.me,secondUser=self.friend)
+        friendship2 = Friendship(firstUser=self.friend,secondUser=self.me)
+
+        friendship1.save()
+        friendship2.save()
+
+        serializer = UserSerializerWithSchedule(self.me.friends.all(), many=True)
+
+        url = reverse('friend-list')
+        data = {'HTTP_X_USER_ID':self.myLogin, 'HTTP_X_USER_TOKEN':self.myToken.value}
+        encodedFriend = {'login': self.friend.login}
+
+        response = self.client.post(url, data=encodedFriend, **data)
+
+        self.assertEqual(response.data, serializer.data)
+
+        pass
+
+
+
+
     def testShowFriend(self):
 
         url = reverse('friend-detail', kwargs={'fpk' : self.friendLogin})
@@ -125,9 +189,10 @@ class FriendshipTestCase(APITestCase):
 
         response = self.client.get(url,format='json', **data)
 
-        serializer = UserSerializer(self.friend)
+        serializer = UserSerializerWithSchedule(self.friend)
 
         self.assertEqual(response.data, serializer.data)
+
 
     def testShowUnfriendedFriend(self):
 
@@ -222,7 +287,14 @@ class SchedulesTestCase(APITestCase):
         gapCount = User.objects.get(login=self.me.login).gap_set.all().count()
         url = reverse('show-gaps')
         data = {'HTTP_X_USER_ID':self.myLogin, 'HTTP_X_USER_TOKEN':self.myToken.value}
-        gap = {'weekday':'5','start_hour':'100','end_hour':'153','user':self.me}
+        gap = { 'type' : 'GAP',
+                'name' : 'My Gap',
+                'location' : 'Building A',
+                'start_hour_weekday':'5',
+                'end_hour_weekday':'5',
+                'start_hour':'100',
+                'end_hour':'153',
+                'user':self.me}
 
         response = self.client.post(url, data=gap, **data)
 
@@ -277,7 +349,14 @@ class SchedulesTestCase(APITestCase):
     def testUpdateGap(self):
 
 
-        newGap = Gap(type="G", start_hour_weekday='1',end_hour_weekday='1',start_hour='080',end_hour='170',user=self.me, id=1)
+        newGap = Gap(type="G",
+                     start_hour_weekday='1',
+                     end_hour_weekday='1',
+                     start_hour='080',
+                     end_hour='170',
+                     user=self.me,
+                     id=1)
+
         serializer = GapSerializer(newGap)
         gap = serializer.data
 
@@ -285,6 +364,7 @@ class SchedulesTestCase(APITestCase):
         data = {'HTTP_X_USER_ID':self.myLogin, 'HTTP_X_USER_TOKEN':self.myToken.value}
 
         response = self.client.put(url, data=gap, **data)
+
 
         # Returns the new Gap
         self.assertEqual(serializer.data['start_hour'], response.data['start_hour'])

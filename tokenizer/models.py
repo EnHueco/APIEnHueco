@@ -12,7 +12,7 @@ class Token(models.Model):
 
     value = models.CharField(max_length=256)
     user = models.ForeignKey(settings.USER_MODEL)
-    created_on = models.DateTimeField(default=timezone.now)
+    created_on = models.DateTimeField(auto_now_add=True)
 
     @classmethod
     def create(cls, user):
