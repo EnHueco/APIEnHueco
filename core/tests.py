@@ -281,7 +281,10 @@ class SchedulesTestCase(APITestCase):
 
     def testAddGap(self):
 
-        newGap = Gap(start_hour_weekday='5',start_hour='100',end_hour='153',user=self.me)
+        newGap = Gap(type='GAP', name='My Gap', location='Building A',
+                     start_hour_weekday='5',start_hour='100',
+                     end_hour_weekday='5', end_hour='153',
+                     user=self.me)
         serializer = GapSerializer(newGap)
 
         gapCount = User.objects.get(login=self.me.login).gap_set.all().count()
@@ -304,6 +307,7 @@ class SchedulesTestCase(APITestCase):
         self.assertTrue(gapCount + 1 == gapCount2)
 
         # Returns the new Gap
+        self.assertEqual(serializer.data['name'], response.data['name'])
         self.assertEqual(serializer.data['start_hour'], response.data['start_hour'])
         self.assertEqual(serializer.data['end_hour'], response.data['end_hour'])
         self.assertEqual(serializer.data['start_hour_weekday'], response.data['start_hour_weekday'])

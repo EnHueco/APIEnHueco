@@ -21,7 +21,6 @@ class GapsViewSet(viewsets.ViewSet):
             serializer = GapSerializer(data=request.data, exclude=('name', 'location'))
             if not serializer.is_valid():
                 return Response(serializer.errors)
-
         serializer.save()
         return Response(serializer.data)
 
