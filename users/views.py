@@ -1,5 +1,6 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
+from rest_framework import status
 from users.serializers import *
 from users.models import User, FriendRequest, Friendship
 from django.core import exceptions
@@ -15,6 +16,16 @@ class UsersViewSet(viewsets.ViewSet):
         user = User.objects.filter(login=pk).first()
         serializer = UserSerializerWithSchedule(user, allow_null=True)
         return Response(serializer.data)
+
+    def updateImageURL(self, request, pk):
+
+        user = User.objects.filter(login=pk).first()
+        serializer = UserImageSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.error_messages, status=status.HTTP_400_BAD_REQUEST)
 
 
 class FriendsViewSet(viewsets.ViewSet):

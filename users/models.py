@@ -3,6 +3,11 @@ from django.utils import timezone
 from django.conf import settings
 #---------
 
+def generate_filename(self, filename):
+    url = "img/profile/%s.%s" % (self.login, filename.split(".")[-1].lower())
+
+    return url
+
 class User(models.Model):
 
     # User Data
@@ -10,7 +15,8 @@ class User(models.Model):
     firstNames = models.CharField(max_length=50)
     lastNames = models.CharField(max_length=50)
     phoneNumber = models.CharField(max_length=30)
-    imageURL = models.CharField(max_length=200)
+    imageURL = models.ImageField(upload_to= generate_filename)
+    # imageURL = models.CharField(max_length=200)
 
     # Relationship handlers
     schedule_updated_on = models.DateTimeField(default=timezone.now)
@@ -22,7 +28,6 @@ class User(models.Model):
     # Relationship
     friends = models.ManyToManyField('self', symmetrical=False, related_name='friends+', through='Friendship')
     requests_sent= models.ManyToManyField('self', through='FriendRequest',symmetrical=False, related_name='requests_received')
-
 
     def isFriendsWith(self, otherUser):
         return otherUser in self.friends.all()

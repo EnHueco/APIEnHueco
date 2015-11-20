@@ -1,4 +1,5 @@
 import datetime
+from rest_framework.parsers import FileUploadParser, MultiPartParser, FormParser
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, viewsets
@@ -7,7 +8,7 @@ from authentication.models import LDAPWrapper
 from tokenizer.models import Tokenizer, Token
 from users.models import User, Friendship
 from schedules.models import Gap
-from users.serializers import UserSerializer
+from users.serializers import UserSerializer, UserImageSerializer,  UserSyncSerializer
 from schedules.serializers import GapSerializer
 from users.serializers import FriendRequestSerializer
 from tokenizer.serializers import TokenSerializer
@@ -97,6 +98,9 @@ class UserDetail(APIView):
     """
     User Detail
     """
+    # parser_classes = (FormParser, MultiPartParser, )
+    parser_classes = (FileUploadParser,)
+
 
     def get(self, request):
         """
@@ -115,6 +119,27 @@ class UserDetail(APIView):
             return UsersViewSet().show(request,self.user_id)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+    def put (self, request):
+        """
+        Uploads user information
+        ---
+        parameters:
+            - name: X-USER-ID
+              paramType: header
+            - name: X-USER-TOKEN
+              paramType: header
+        response_serializer: UserSerializer
+        """
+        self.set_authentication_params(request)
+        if request.data.get('file') != None:
+            request.data['imageURL'] = request.data['file']
+
+        if self.authenticate():
+            return UsersViewSet().updateImageURL(request, self.user_id)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
 
 # ------ FRIEND REQUESTS ------
 
@@ -259,7 +284,7 @@ class FriendListSync(APIView):
     """
     def get(self, request):
         """
-        Shows friends list synchronization information
+        Shows friends list synchronization information.
         ---
         parameters:
             - name: X-USER-ID
@@ -347,6 +372,17 @@ class GapsDetail(APIView):
             return GapsViewSet().update(request, self.user_id, gid)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+    def delete(self, request, gid):
+        """
+        Deletes a Gap with ID gid
+        ---
+
+        """
+        self.set_authentication_params(request)
+        if self.authenticate():
+            return GapsViewSet().delete(request, gid, self.user_id)
+
 
 
 class GapsList(APIView):

@@ -40,7 +40,7 @@ class GapsViewSet(viewsets.ViewSet):
         gap = Gap.objects.filter(user_id=pk, id=id).first()
         if(gap is not None):
             gap.delete()
-        return Response("")
+        return Response()
 
     def update(self, request, pk, id):
 

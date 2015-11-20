@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import models, migrations
 import django.utils.timezone
+import users.models
 
 
 class Migration(migrations.Migration):
@@ -33,7 +34,7 @@ class Migration(migrations.Migration):
                 ('firstNames', models.CharField(max_length=50)),
                 ('lastNames', models.CharField(max_length=50)),
                 ('phoneNumber', models.CharField(max_length=30)),
-                ('imageURL', models.CharField(max_length=200)),
+                ('imageURL', models.ImageField(upload_to=users.models.generate_filename)),
                 ('schedule_updated_on', models.DateTimeField(default=django.utils.timezone.now)),
                 ('created_on', models.DateTimeField(auto_now_add=True)),
                 ('updated_on', models.DateTimeField(auto_now=True)),

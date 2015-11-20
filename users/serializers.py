@@ -9,7 +9,13 @@ from rest_framework import serializers
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        exclude = ('created_on', 'friends', 'requests_sent')
+        exclude = ('imageURL','created_on', 'friends', 'requests_sent')
+
+class UserImageSerializer(serializers.ModelSerializer):
+    # imageURL = serializers.ImageField(required=True, source='file')
+    class Meta:
+        model = User
+        fields = ('imageURL',)
 
 class UserSyncSerializer(serializers.ModelSerializer):
     class Meta:
