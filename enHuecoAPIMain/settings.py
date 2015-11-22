@@ -116,6 +116,7 @@ USER_MODEL = 'users.User'
 TOKENIZER_MODEL = 'tokenizer.Tokenizer'
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
+MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 
 # ./manage.py collectstatic
 # chmod 664 ~/enhueco/db.sqlite3
