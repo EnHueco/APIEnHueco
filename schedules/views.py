@@ -40,7 +40,9 @@ class GapsViewSet(viewsets.ViewSet):
         gap = Gap.objects.filter(user_id=pk, id=id).first()
         if(gap is not None):
             gap.delete()
-        return Response()
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def update(self, request, pk, id):
 
@@ -50,6 +52,6 @@ class GapsViewSet(viewsets.ViewSet):
             if(serializer.is_valid()):
                 serializer.save()
                 return Response(serializer.data)
-            return Response(serializer.data)
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)

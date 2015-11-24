@@ -6,8 +6,7 @@ import schedules.models as models
 class GapSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Gap
-        read_only_fields = ('created_on', 'updated_on')
-
+        #read_only_fields = ('created_on', 'updated_on')
 
     def __init__(self, *args, **kwargs):
         # Don't pass the 'fields' arg up to the superclass

@@ -347,7 +347,7 @@ class UserList(APIView):
         """
         self.set_authentication_params(request)
         if self.authenticate():
-            users = User.objects.filter(Q(login__contains=searchID) | Q(firstNames__contains=searchID) | Q(lastNames__contains=searchID))
+            users = User.objects.filter(Q(login__contains=searchID) | Q(firstNames__contains=searchID) | Q(lastNames__contains=searchID)).exclude(login=self.user_id)
             serializer = UserSerializer(users, many=True)
             return Response(serializer.data)
         else:
@@ -381,7 +381,9 @@ class GapsDetail(APIView):
         """
         self.set_authentication_params(request)
         if self.authenticate():
-            return GapsViewSet().delete(request, gid, self.user_id)
+            return GapsViewSet().delete(request, self.user_id, gid)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
 
