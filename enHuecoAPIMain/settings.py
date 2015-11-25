@@ -55,6 +55,7 @@ INSTALLED_APPS = (
     'tokenizer',
     'core',
     'schedules',
+    'localization',
     'corsheaders',
     'rest_framework_swagger'
 

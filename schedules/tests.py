@@ -3,8 +3,6 @@ from schedules.models import Gap
 from users.models import User
 
 # Create your tests here.
-
-
 class GapTestCase(TestCase):
     #def setUp(self):
 
@@ -86,7 +84,7 @@ class GapTestCase(TestCase):
 class GapUserTestCase(TestCase):
 
     def setUp(self):
-        self.user = User.objects.create(login="test")
+        self.user = User.objects.create(login="test", firstNames="user", lastNames="lastUser")
 
     def test_gap_creates_schedule_updated_on_correct(self):
         # print("UPDATED_ON" + str(self.user.updated_on))

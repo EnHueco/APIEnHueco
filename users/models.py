@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.conf import settings
+
 #---------
 
 def generate_filename(self, filename):
@@ -11,10 +12,10 @@ def generate_filename(self, filename):
 class User(models.Model):
 
     # User Data
-    login = models.CharField(max_length=30, primary_key=True)
-    firstNames = models.CharField(max_length=50)
-    lastNames = models.CharField(max_length=50)
-    phoneNumber = models.CharField(max_length=30)
+    login = models.CharField(max_length=30, primary_key=True, default=None)
+    firstNames = models.CharField(max_length=50, null=False, blank=False, default=None)
+    lastNames = models.CharField(max_length=50, null=False, default=None)
+    phoneNumber = models.CharField(max_length=30, default="")
     imageURL = models.ImageField(upload_to= generate_filename)
     # imageURL = models.CharField(max_length=200)
 
@@ -38,8 +39,7 @@ class User(models.Model):
         return me
 
     def __str__(self):
-        return self.login
-
+        return '{} : {} {}'.format(self.login, self.firstNames, self.lastNames)
 
 class FriendRequest(models.Model):
 

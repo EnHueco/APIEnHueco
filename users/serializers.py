@@ -3,6 +3,7 @@ __author__ = 'Diego'
 # imports
 from users.models import User, FriendRequest, Friendship
 from schedules.serializers import GapSerializer
+from localization.serializers import LocationSerializer
 from rest_framework import serializers
 
 # --- USER ---
@@ -11,11 +12,18 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         exclude = ('imageURL','created_on', 'friends', 'requests_sent')
 
+
 class UserImageSerializer(serializers.ModelSerializer):
     # imageURL = serializers.ImageField(required=True, source='file')
     class Meta:
         model = User
         fields = ('imageURL',)
+
+class UserLocationSerializer(serializers.ModelSerializer):
+    location = LocationSerializer()
+    class Meta:
+        model = User
+        fields = ('login', 'location')
 
 class UserSyncSerializer(serializers.ModelSerializer):
     class Meta:

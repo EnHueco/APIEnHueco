@@ -3,19 +3,21 @@ from rest_framework.parsers import FileUploadParser, MultiPartParser, FormParser
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, viewsets
+
 from django.core import exceptions
-from authentication.models import LDAPWrapper
-from tokenizer.models import Tokenizer, Token
-from users.models import User, Friendship
-from schedules.models import Gap
-from users.serializers import UserSerializer, UserImageSerializer,  UserSyncSerializer
-from schedules.serializers import GapSerializer
-from users.serializers import FriendRequestSerializer
-from tokenizer.serializers import TokenSerializer
-from users.views import SentFriendRequestViewSet, ReceivedFriendRequestViewSet, UsersViewSet
-from users.views import FriendsViewSet
-from schedules.views import GapsViewSet
 from django.db.models import Q
+
+from authentication.models import *
+
+from tokenizer.models import *
+from schedules.models import *
+from localization.models import *
+from users.serializers import *
+from tokenizer.serializers import *
+from localization.views import *
+from schedules.views import GapsViewSet
+from users.views import *
+
 import string
 
 # Method that authenticates user if valid token and user_id is given
@@ -28,6 +30,9 @@ class APIView(APIView):
 
     def authenticate(self):
         return Tokenizer.authenticate(self.user_id, self.token)
+
+    def unauthorized_response(self):
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
 
@@ -53,38 +58,23 @@ class Authenticate(APIView):
         password = request.data['password']
 
         ldapWrapper = LDAPWrapper()
-        access_granted = ldapWrapper.authenticate(user_id, password)
-
-        if(access_granted):
+        if(ldapWrapper.authenticate(user_id, password)):
             finalUser = None
             try:
-                user = User.objects.get(login=user_id)
-                finalUser = user
+                finalUser = User.objects.get(login=user_id)
                 # user already exists
-
             except exceptions.ObjectDoesNotExist:
-                # user doesn't exist
                 data = ldapWrapper.search(user_id)
-                # FALTA Revisar data...
-
-                deleteExtraChars = r'[\[\]\']'
-
                 firstNames = string.capwords(data['givenName'][0].strip())
                 lastNames = string.capwords(data['sn'][0].strip())
 
-                # CREATE and save User
-                newUser = User.create(login=user_id, firstNames=firstNames, lastNames=lastNames)
-                newUser.save()
+                finalUser = User.objects.create(login=user_id, firstNames=firstNames, lastNames=lastNames)
 
-                finalUser = newUser
-
-            except exceptions.MultipleObjectsReturned:
-                return Response('ERROR')
+            except exceptions.MultipleObjectsReturned as e:
+                return Response(e.message, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             token = Tokenizer.assignToken(finalUser)
-
             serializer = TokenSerializer(token)
-
             return Response(serializer.data)
 
         else:
@@ -471,6 +461,49 @@ class GapsCross(APIView):
                 return Response(status=status.HTTP_403_FORBIDDEN)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+class LocationList(APIView):
+    """
+    Friends location list
+    """
+    def get(self, request):
+        """
+        Shows location list of user friends
+        ---
+        parameters:
+            - name: X-USER-ID
+              paramType: header
+            - name: X-USER-TOKEN
+              paramType: header
+        serializer: UserLocationSerializer
+        """
+        #self.set_authentication_params(request)
+        #if self.authenticate():
+        return LocationsViewSet().list(request,pk="user1")
+#        else:
+ #           return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+class LocationDetail(APIView):
+    """
+    Location detail
+    """
+    def put(self, request):
+        """
+        Updates user location
+        ---
+        parameters:
+            - name: X-USER-ID
+              paramType: header
+            - name: X-USER-TOKEN
+              paramType: header
+        serializer: UserLocationSerializer
+        """
+        #self.set_authentication_params(request)
+        #if self.authenticate():
+        return LocationsViewSet().update(request,pk="d")
+        #else:
+        #    return self.unauthorized_response()
+
 
 """
 class UpdateMySchedule(APIView):
