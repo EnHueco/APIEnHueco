@@ -479,7 +479,7 @@ class LocationList(APIView):
         """
         self.set_authentication_params(request)
         if self.authenticate():
-            return LocationsViewSet().list(request,pk="user1")
+            return LocationsViewSet().list(request, pk=self.user_id)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
@@ -500,7 +500,7 @@ class LocationDetail(APIView):
         """
         self.set_authentication_params(request)
         if self.authenticate():
-            return LocationsViewSet().update(request,pk="d")
+            return LocationsViewSet().update(request,pk=self.user_id)
         else:
             return self.unauthorized_response()
 
