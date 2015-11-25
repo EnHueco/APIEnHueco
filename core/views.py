@@ -477,11 +477,11 @@ class LocationList(APIView):
               paramType: header
         serializer: UserLocationSerializer
         """
-        #self.set_authentication_params(request)
-        #if self.authenticate():
-        return LocationsViewSet().list(request,pk="user1")
-#        else:
- #           return Response(status=status.HTTP_401_UNAUTHORIZED)
+        self.set_authentication_params(request)
+        if self.authenticate():
+            return LocationsViewSet().list(request,pk="user1")
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 class LocationDetail(APIView):
     """
@@ -498,11 +498,11 @@ class LocationDetail(APIView):
               paramType: header
         serializer: UserLocationSerializer
         """
-        #self.set_authentication_params(request)
-        #if self.authenticate():
-        return LocationsViewSet().update(request,pk="d")
-        #else:
-        #    return self.unauthorized_response()
+        self.set_authentication_params(request)
+        if self.authenticate():
+            return LocationsViewSet().update(request,pk="d")
+        else:
+            return self.unauthorized_response()
 
 
 """

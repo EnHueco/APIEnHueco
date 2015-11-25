@@ -27,7 +27,7 @@ urlpatterns = [
     url(r'^requests/received/$', views.ReceivedFriendRequestsList.as_view(), name='received-friend-requests-list'),
 # FRIENDS
     url(r'^friends/$', views.FriendList.as_view(), name='friend-list'),
-    url(r'^friends/locations/$', views.LocationList.as_view(), name='friend-location-list'),
+    url(r'^friends/location/$', views.LocationList.as_view(), name='friend-location-list'),
     url(r'^friends/sync/$', views.FriendListSync.as_view(), name='friend-list-sync'),
     url(r'^friends/(?P<fpk>[a-z]+(\.)?[a-z]+[0-9]*)/$', views.FriendDetail.as_view(), name='friend-detail'),
 ]
