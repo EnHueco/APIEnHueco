@@ -32,3 +32,4 @@ class LocationsViewSet(viewsets.ViewSet):
             return Response(e, status=status.HTTP_400_BAD_REQUEST)
         except:
             return Response(sys.exc_info()[0],status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
