@@ -3,7 +3,6 @@ __author__ = 'Diego'
 from core import views
 from django.conf.urls import patterns, include, url
 
-
 urlpatterns = [
 
 # DOCUMENTATION
@@ -32,4 +31,3 @@ urlpatterns = [
     url(r'^friends/sync/$', views.FriendListSync.as_view(), name='friend-list-sync'),
     url(r'^friends/(?P<fpk>[a-z]+(\.)?[a-z]+[0-9]*)/$', views.FriendDetail.as_view(), name='friend-detail'),
 ]
-

@@ -50,7 +50,7 @@ class GapsViewSet(viewsets.ViewSet):
 
         gap = Gap.objects.filter(user_id=pk, id=id).first()
         if(gap is not None):
-            serializer = GapSerializer(gap, data=request.data)
+            serializer = GapSerializer(gap, partial= True, data=request.data)
             if(serializer.is_valid()):
                 serializer.save()
                 return Response(serializer.data)

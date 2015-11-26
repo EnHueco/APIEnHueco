@@ -506,7 +506,7 @@ class LocationDetail(APIView):
 
 class LocationFriendList(APIView):
     """
-    Location detail
+    Location with friend list
     """
     def put(self, request):
         """
