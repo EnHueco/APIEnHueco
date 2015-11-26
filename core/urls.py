@@ -14,6 +14,7 @@ urlpatterns = [
 # ME
     url(r'^me/$', views.UserDetail.as_view(), name='show-me'),
     url(r'^me/location/$', views.LocationDetail.as_view(), name='my-location'),
+    url(r'^me/location/friends/$', views.LocationFriendList.as_view(), name='my-location-friends'),
 # USERS
     url(r'^users/(?P<searchID>[a-zA-Z0-9\.]+)', views.UserList.as_view(), name='search-users'),
 # SCHEDULES

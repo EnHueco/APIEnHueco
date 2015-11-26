@@ -504,6 +504,27 @@ class LocationDetail(APIView):
         else:
             return self.unauthorized_response()
 
+class LocationFriendList(APIView):
+    """
+    Location detail
+    """
+    def put(self, request):
+        """
+        Updates user location BSSID and retrieves user friends BSSID
+        ---
+        parameters:
+            - name: X-USER-ID
+              paramType: header
+            - name: X-USER-TOKEN
+              paramType: header
+        serializer: UserLocationSerializer
+        """
+        self.set_authentication_params(request)
+        if self.authenticate():
+            return LocationsViewSet().updateWithFriendsList(request,pk=self.user_id)
+        else:
+            return self.unauthorized_response()
+
 
 """
 class UpdateMySchedule(APIView):
