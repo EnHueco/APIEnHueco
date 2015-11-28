@@ -83,15 +83,36 @@ class Authenticate(APIView):
 
 
 # ------ USER ------
+class UserImageDetail(APIView):
+    """
+    User Image
+    """
+    parser_classes = (FileUploadParser,)
+
+    def put (self, request):
+        """
+        Uploads user image
+        ---
+        parameters:
+            - name: X-USER-ID
+              paramType: header
+            - name: X-USER-TOKEN
+              paramType: header
+        response_serializer: UserSerializer
+        """
+        self.set_authentication_params(request)
+        if request.data.get('file') != None:
+            request.data['imageURL'] = request.data['file']
+        if self.authenticate():
+            return UsersViewSet().updateImageURL(request, self.user_id)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
 
 class UserDetail(APIView):
     """
     User Detail
     """
-    # parser_classes = (FormParser, MultiPartParser, )
-    parser_classes = (FileUploadParser,)
-
-
     def get(self, request):
         """
         Shows user information
@@ -112,23 +133,21 @@ class UserDetail(APIView):
 
     def put (self, request):
         """
-        Uploads user information
+        Uploads User information
         ---
         parameters:
-            - name: X-USER-ID
+            - name : X-USER-ID
               paramType: header
-            - name: X-USER-TOKEN
+            - name : X-USER-TOKEN
               paramType: header
         response_serializer: UserSerializer
         """
         self.set_authentication_params(request)
-        if request.data.get('file') != None:
-            request.data['imageURL'] = request.data['file']
-
-        if self.authenticate():
-            return UsersViewSet().updateImageURL(request, self.user_id)
+        if self.authenticate:
+            return UsersViewSet().update(request, pk=self.user_id)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
+
 
 
 # ------ FRIEND REQUESTS ------
@@ -293,7 +312,6 @@ class FriendListGapNow(APIView):
     """
     Lists of friends with gap now
     """
-
     def get(self, request):
         """
         Shows friends list with gap now
@@ -307,11 +325,8 @@ class FriendListGapNow(APIView):
         """
         self.set_authentication_params(request)
         if self.authenticate():
-
             actualDay = str(datetime.date.today()+1)
-
             gaps = Gap.objects.filter(user__friends__contains=self.user_id, day=actualDay, )
-
 
             return FriendsViewSet().list(request, self.user_id)
         else:
@@ -524,18 +539,3 @@ class LocationFriendList(APIView):
             return LocationsViewSet().updateWithFriendsList(request,pk=self.user_id)
         else:
             return self.unauthorized_response()
-
-
-"""
-class UpdateMySchedule(APIView):
-
-    def post(self, request):
-        if(Tokenizer.authenticate(request.data['user_id'], request.data['token'])):
-            user_id = request.data['user_id']
-            schedule = request.data['schedule']
-            view = SchedulesViews()
-            return view.updateSchedule(request, ownerPK=user_id, scheduleUpdate=schedule)
-        else:
-            return Response('Token not found or does not match',status=status.HTTP_400_BAD_REQUEST)
-
-"""

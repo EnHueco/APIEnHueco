@@ -8,10 +8,22 @@ from rest_framework import serializers
 
 # --- USER ---
 class UserSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = User
-        exclude = ('imageURL','created_on', 'friends', 'requests_sent')
+        exclude = (
+            'created_on',
+            'friends',
+            'requests_sent'
+        )
+        read_only_fields = (
+            'updated_on',
+            'schedule_updated_on',
+            'imageURL'
+        )
 
+class UserSerializerWithSchedule(UserSerializer):
+    gap_set = GapSerializer(many=True)
 
 class UserImageSerializer(serializers.ModelSerializer):
     # imageURL = serializers.ImageField(required=True, source='file')
@@ -48,11 +60,3 @@ class FriendshipSerializer(serializers.ModelSerializer):
     class Meta:
         model = Friendship
         fields = ('firstUser','secondUser')
-
-# Mixed serializers
-class UserSerializerWithSchedule(serializers.ModelSerializer):
-    gap_set = GapSerializer(many=True)
-    class Meta:
-        model = User
-        depth = 1
-        exclude = ('created_on', 'friends', 'requests_sent')
