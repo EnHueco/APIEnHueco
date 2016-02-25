@@ -13,14 +13,21 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         exclude = (
             'created_on',
+
             'friends',
-            'requests_sent'
+            'requests_sent',
         )
         read_only_fields = (
             'updated_on',
             'schedule_updated_on',
             'imageURL'
         )
+        extra_kwargs = {
+            'shares_user_nearby': {'write_only': True},
+            'shares_event_names': {'write_only': True},
+            'shares_event_locations': {'write_only': True}
+        }
+
 
 class UserSerializerWithSchedule(UserSerializer):
     gap_set = GapSerializer(many=True)

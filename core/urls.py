@@ -12,7 +12,7 @@ urlpatterns = [
     url(r'^auth/$', views.Authenticate.as_view()),
 # ME
     url(r'^me/$', views.UserDetail.as_view(), name='show-me'),
-    url(r'^me/image/$', views.UserImageDetail.as_view(), name='show-me'),
+    url(r'^me/image/$', views.UserImageDetail.as_view(), name='show-me-image'),
     url(r'^me/location/$', views.LocationDetail.as_view(), name='my-location'),
     url(r'^me/location/friends/$', views.LocationFriendList.as_view(), name='my-location-friends'),
 # USERS

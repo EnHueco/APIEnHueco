@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from users.serializers import *
 from users.models import User, FriendRequest, Friendship
+from schedules.models import Gap
 from django.core import exceptions
 from django.db.models import Q
 
@@ -30,7 +31,7 @@ class UsersViewSet(viewsets.ViewSet):
 
     def update(self, request, pk):
 
-        user = User.objects.filter(login=pk).first()
+        user = User.objects.filter(login=pk).first() # type: User
         serializer = UserSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -60,7 +61,8 @@ class FriendsViewSet(viewsets.ViewSet):
                 my_filter_qs = my_filter_qs | Q(login=login)
             friendsQuery = friendsQuery.filter(my_filter_qs)
 
-        friends = friendsQuery.all()
+        ## Handling privacy data
+        friends = User.apply_privacy_settings_to_queryset(friendsQuery.all())
 
         if(isSync):
             serializer = UserSyncSerializer(friends, many=True)
