@@ -22,6 +22,33 @@ class EHAPITestCase(APITestCase) :
 		self.friend = User.create(login=self.friend_login, firstNames='friendName', lastNames='friendLast')
 		self.friend.save()
 
+		self.friend_token = Tokenizer.assignToken(self.friend)
+
+		self.friend_credentials_kwargs = {'HTTP_X_USER_ID' :    self.friend_login,
+										  'HTTP_X_USER_TOKEN' : self.friend_token.value}
+
+
+	def addGapData (self) :
+		self.gaps = []
+		self.friend_gaps = []
+		for i in range(1, 4) :
+			new_gap = Gap.objects.create(name="Event {}".format(i), location="Location {}".format(i), type="CLASS",
+										 start_hour_weekday=str(i), start_hour='100', end_hour='153', user=self.me)
+
+			new_friend_gap = Gap.objects.create(name="Friend Event {}".format(i),
+												location="Friend Location {}".format(i), type="CLASS",
+												start_hour_weekday=str(i), start_hour='100', end_hour='153',
+												user=self.friend)
+			self.gaps.append(new_gap)
+			self.friend_gaps.append(new_friend_gap)
+
+
+	def addFriendshipData (self) :
+		friendship1 = Friendship(firstUser=self.me, secondUser=self.friend)
+		friendship1.save()
+		friendship2 = Friendship(firstUser=self.friend, secondUser=self.me)
+		friendship2.save()
+
 
 class FriendRequestTestCase(EHAPITestCase) :
 	def testSendFriendRequest (self) :
@@ -215,45 +242,63 @@ class FriendshipTestCase(APITestCase) :
 
 
 # ----- SCHEDULES -----
-class SchedulesTestCase(APITestCase) :
+class SchedulesTestCase(EHAPITestCase) :
 	def setUp (self) :
-		pass
-
-		self.myLogin = 'test10'
-		self.friendLogin = 'friend10'
-
-		self.me = User.create(login=self.myLogin, firstNames='testNames', lastNames='testLastNames')
-		self.me.save()
-
-		self.gap1 = Gap.objects.create(name="Event 1", location="Location 1", type="CLASS", start_hour_weekday="1",
-									   start_hour='100', end_hour='153', user=self.me)
-		self.gap2 = Gap.objects.create(name="Event 2", location="Location 2", type="FREE_TIME", start_hour_weekday="2",
-									   start_hour='100', end_hour='153', user=self.me)
-		self.gap3 = Gap.objects.create(name="Event 3", location="Location 3", type="FREE_TIME", start_hour_weekday="3",
-									   start_hour='100', end_hour='153', user=self.me)
-
-		self.myToken = Tokenizer.assignToken(self.me)
-
-		self.friend = User.create(login=self.friendLogin, firstNames='friendName', lastNames='friendLast')
-		self.friend.save()
-
-		self.fgap1 = Gap.objects.create(name="", location="", type="", start_hour_weekday="1", start_hour='100',
-										end_hour='153', user=self.friend)
-		self.fgap2 = Gap.objects.create(name="", location="", type="", start_hour_weekday="2", start_hour='100',
-										end_hour='153', user=self.friend)
-		self.fgap3 = Gap.objects.create(name="", location="", type="", start_hour_weekday="3", start_hour='100',
-										end_hour='153', user=self.friend)
+		super(SchedulesTestCase, self).setUp()
+		super(SchedulesTestCase, self).addGapData()
+		super(SchedulesTestCase, self).addFriendshipData()
 
 
 	def testShowGaps (self) :
 		url = reverse('show-gaps')
-		data = {'HTTP_X_USER_ID' : self.myLogin, 'HTTP_X_USER_TOKEN' : self.myToken.value}
+		data = self.credentials_kwargs
 
 		response = self.client.get(url, **data)
-		serializer = GapSerializer([self.gap1, self.gap2, self.gap3], many=True)
+		serializer = GapSerializer(self.gaps, many=True)
 
 		self.assertEqual(response.data, serializer.data)
 
+
+	def testShowFriendSchedule (self) :
+		url = reverse('show-friend-gaps', kwargs={'fpk' : 'friend10'})
+		data = self.credentials_kwargs
+
+		response = self.client.get(url, format='json', **data)
+		serializer = GapSerializer(self.friend.gap_set.all(), many=True)
+
+		self.assertEqual(response.data, serializer.data)
+
+"""
+	def testShowFriendGapsCross (self) :
+		url = reverse('show-friend-gaps-cross', kwargs={'fpk' : 'friend10'})
+		data = {'HTTP_X_USER_ID' : self.my_login, 'HTTP_X_USER_TOKEN' : self.my_token.value}
+
+		finalSchedule = Gap.crossGaps(self.me.gap_set.all(), self.friend.gap_set.all())
+		serializer = GapSerializer(finalSchedule, many=True)
+
+		response = self.client.get(url, **data)
+
+		self.assertEqual(serializer.data, response.data)
+
+
+
+	def testUpdateGap (self) :
+		newGap = Gap(type="G", start_hour_weekday='1', end_hour_weekday='1', start_hour='080', end_hour='170',
+					 user=self.me, id=1)
+
+		serializer = GapSerializer(newGap)
+		gap = serializer.data
+
+		url = reverse('gap-detail', kwargs={'gid' : '1'})
+		data = self.credentials_kwargs
+
+		response = self.client.put(url, data=gap, **data)
+
+		# Returns the new Gap
+		self.assertEqual(serializer.data['start_hour'], response.data['start_hour'])
+		self.assertEqual(serializer.data['end_hour'], response.data['end_hour'])
+		self.assertEqual(serializer.data['start_hour_weekday'], response.data['start_hour_weekday'])
+		self.assertEqual(serializer.data['user'], response.data['user'])
 
 	def testAddGap (self) :
 		newGap = Gap(type='GAP', name='My Gap', location='Building A', start_hour_weekday='5', start_hour='100',
@@ -262,7 +307,7 @@ class SchedulesTestCase(APITestCase) :
 
 		gapCount = User.objects.get(login=self.me.login).gap_set.all().count()
 		url = reverse('show-gaps')
-		data = {'HTTP_X_USER_ID' : self.myLogin, 'HTTP_X_USER_TOKEN' : self.myToken.value}
+		data = {'HTTP_X_USER_ID' : self.my_login, 'HTTP_X_USER_TOKEN' : self.my_token.value}
 		gap = {'type' :             'GAP', 'name' : 'My Gap', 'location' : 'Building A', 'start_hour_weekday' : '5',
 			   'end_hour_weekday' : '5', 'start_hour' : '100', 'end_hour' : '153', 'user' : self.me}
 
@@ -279,61 +324,67 @@ class SchedulesTestCase(APITestCase) :
 		self.assertEqual(serializer.data['end_hour'], response.data['end_hour'])
 		self.assertEqual(serializer.data['start_hour_weekday'], response.data['start_hour_weekday'])
 		self.assertEqual(serializer.data['user'], response.data['user'])
+"""
 
 
-	def testShowFriendSchedule (self) :
-		url = reverse('show-friend-gaps', kwargs={'fpk' : 'friend10'})
-		data = {'HTTP_X_USER_ID' : self.myLogin, 'HTTP_X_USER_TOKEN' : self.myToken.value}
-
-		friendship1 = Friendship(firstUser=self.me, secondUser=self.friend)
-		friendship1.save()
-		friendship2 = Friendship(firstUser=self.friend, secondUser=self.me)
-		friendship2.save()
-
-		self.friend = self.me.friends.all()[0]
-
-		response = self.client.get(url, format='json', **data)
-		serializer = GapSerializer(self.friend.gap_set.all(), many=True)
-
-		self.assertEqual(response.data, serializer.data)
+class PrivacyTestCase(EHAPITestCase) :
+	def setUp (self) :
+		super(PrivacyTestCase, self).setUp()
+		super(PrivacyTestCase, self).addGapData()
+		super(PrivacyTestCase, self).addFriendshipData()
 
 
-	def testShowFriendGapsCross (self) :
-		url = reverse('show-friend-gaps-cross', kwargs={'fpk' : 'friend10'})
-		data = {'HTTP_X_USER_ID' : self.myLogin, 'HTTP_X_USER_TOKEN' : self.myToken.value}
+	def testUpdateLocationPrivacyAttributes (self) :
+		url = reverse('show-me')
+		data = self.credentials_kwargs
 
-		friendship1 = Friendship(firstUser=self.me, secondUser=self.friend)
-		friendship1.save()
-		friendship2 = Friendship(firstUser=self.friend, secondUser=self.me)
-		friendship2.save()
+		possible_values = [False, True]
 
-		finalSchedule = Gap.crossGaps(self.me.gap_set.all(), self.friend.gap_set.all())
-		serializer = GapSerializer(finalSchedule, many=True)
+		for actual_value in possible_values :
+			user_json_data = UserSerializer(self.me).data
+			user_json_data['shares_event_names'] = actual_value
+			user_json_data['shares_event_locations'] = actual_value
+			response = self.client.put(url, data=user_json_data, **data)
 
-		response = self.client.get(url, **data)
+			self.me = User.objects.get(login=self.me.login)
 
-		self.assertEqual(serializer.data, response.data)
-
-
-	def testUpdateGap (self) :
-		newGap = Gap(type="G", start_hour_weekday='1', end_hour_weekday='1', start_hour='080', end_hour='170',
-					 user=self.me, id=1)
-
-		serializer = GapSerializer(newGap)
-		gap = serializer.data
-
-		url = reverse('gap-detail', kwargs={'gid' : '1'})
-		data = {'HTTP_X_USER_ID' : self.myLogin, 'HTTP_X_USER_TOKEN' : self.myToken.value}
-
-		response = self.client.put(url, data=gap, **data)
-
-		# Returns the new Gap
-		self.assertEqual(serializer.data['start_hour'], response.data['start_hour'])
-		self.assertEqual(serializer.data['end_hour'], response.data['end_hour'])
-		self.assertEqual(serializer.data['start_hour_weekday'], response.data['start_hour_weekday'])
-		self.assertEqual(serializer.data['user'], response.data['user'])
+			self.assertTrue(self.me.shares_event_names == actual_value,
+							"User attribute 'shares event_names' is not being updated to {}.".format(actual_value))
+			self.assertTrue(self.me.shares_event_locations == actual_value,
+							"User attribute 'shares_event_locations' is not being updated to False.".format(
+									actual_value))
 
 
+	def testHidesLocationPrivacyValues (self) :
+		url = reverse('show-me')
+		friend_data = self.friend_credentials_kwargs
+
+		possible_values = [False, True]
+
+		for actual_boolean_value in possible_values :
+
+			friend_json_data = UserSerializer(self.friend).data
+			friend_json_data['shares_event_names'] = actual_boolean_value
+			friend_json_data['shares_event_locations'] = actual_boolean_value
+
+			url = reverse('show-me')
+			response = self.client.put(url, data=friend_json_data, **friend_data)
+			print response
+
+			url = reverse('friend-list')
+			data = self.credentials_kwargs
+
+			response = self.client.get(url, format='json', **data)
+
+			for user in response.data:
+				for event in user['gap_set']:
+					print event
+					if actual_boolean_value == False:
+						self.assertEqual(event['location'],'')
+						self.assertEqual(event['name'],'')
+					else:
+						self.assertNotEqual(event['location'],'')
+						self.assertNotEqual(event['name'],'')
 
 # def testUpdateMyScheduleDay(self):
 

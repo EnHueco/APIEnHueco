@@ -304,7 +304,7 @@ class FriendListSync(APIView):
         """
         self.set_authentication_params(request)
         if self.authenticate():
-            return FriendsViewSet().list(request, self.user_id, isSync=True)
+            return FriendsViewSet().list(request, self.user_id, is_sync=True)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 

@@ -59,7 +59,7 @@ class Gap(models.Model):
 
 
     def __str__(self):
-        return "{} : {} -> {}".format(self.user, self.start_hour, self.end_hour)
+        return "{} : {}".format(self.name,self.location )
 
     # TODO: Update and fix to make it work with new 'end_hour_weekday' field.
     def cross(self, gap2):

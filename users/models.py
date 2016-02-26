@@ -15,7 +15,7 @@ class User(models.Model):
     login = models.CharField(max_length=30, primary_key=True, default=None)
     firstNames = models.CharField(max_length=50, null=False, blank=False, default=None)
     lastNames = models.CharField(max_length=50, null=False, default=None)
-    phoneNumber = models.CharField(max_length=30, default="")
+    phoneNumber = models.CharField(max_length=30, default="", blank=True)
     imageURL = models.ImageField(upload_to= generate_filename)
     # imageURL = models.CharField(max_length=200)
 
@@ -45,22 +45,6 @@ class User(models.Model):
 
     def __str__(self):
         return '{} : {} {}'.format(self.login, self.firstNames, self.lastNames)
-
-    @classmethod
-    def apply_privacy_settings_to_queryset(cls, friends):
-        for friend in friends:
-            ## Check event locations
-            if not friend.shares_event_locations:
-                for event in friend.gap_set.all():
-                    event.location = ""
-
-            ## Check event names
-            if not friend.shares_event_names:
-                schedule = friend.gap_set.all()
-                for event in schedule:
-                    event.name = ""
-
-        return friends
 
 class FriendRequest(models.Model):
 
