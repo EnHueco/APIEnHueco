@@ -23,8 +23,9 @@ This repository contains the DJango API that supports all mobile applications th
 EnHueco (API) uses a number of open source projects to work properly:
 
 * [Django] - a high-level Python Web framework that encourages rapid development and clean, pragmatic design
-* [Django Rest Framework] - a powerful and flexible toolkit for building Web APIs.
+* [Django Rest Framework] - a powerful and flexible toolkit for building Web APIs
 * [Django Rest Swagger] - Swagger Documentation Generator for Django REST Framework
+* [Imagekit] - Django app for processing images
 
 ### Screenshots
 ![Screenshot 1](https://cloud.githubusercontent.com/assets/4405152/13204582/58d46492-d8cb-11e5-8a9e-f307027bbbdb.png)
@@ -43,3 +44,4 @@ MIT
    [Django]: <https://github.com/django/django>
    [Django Rest Framework]: <https://github.com/tomchristie/django-rest-framework>
    [Django Rest Swagger]: <https://github.com/marcgibbons/django-rest-swagger>
+   [Imagekit]: <https://github.com/matthewwithanm/django-imagekit>
