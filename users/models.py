@@ -1,13 +1,30 @@
 from django.db import models
 from django.utils import timezone
 from django.conf import settings
+from imagekit import ImageSpec, register
+from imagekit.models import ImageSpecField
+from imagekit.processors import ResizeToFill
 
 #---------
 
 def generate_filename(self, filename):
-    url = "img/profile/%s.%s" % (self.login, filename.split(".")[-1].lower())
-
+    url = "photos/original/%s.%s" % (self.login, filename.split(".")[-1].lower())
     return url
+
+class ThumbnailSpec(ImageSpec):
+    processors=[ResizeToFill(100,100)]
+    format='JPEG'
+    options={'quality': 90}
+
+    # put thumbnails into the "photos/thumbs" folder and
+    # name them the same as the source file
+    @property
+    def cachefile_name(self):
+        source_filename = getattr(self.source, 'name', None) # type: str
+        s = "photos/thumbs/" + source_filename.split('photos/original/')[1]
+        return s
+
+register.generator('enhueco:thumbnail', ThumbnailSpec)
 
 class User(models.Model):
 
@@ -17,6 +34,9 @@ class User(models.Model):
     lastNames = models.CharField(max_length=50, null=False, default=None)
     phoneNumber = models.CharField(max_length=30, default="", blank=True)
     imageURL = models.ImageField(upload_to= generate_filename)
+    image_thumbnail = ImageSpecField(source='imageURL',
+                                     id='enhueco:thumbnail'
+                                     )
     # imageURL = models.CharField(max_length=200)
 
     ### Privacy Handling

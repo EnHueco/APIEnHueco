@@ -20,7 +20,8 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = (
             'updated_on',
             'schedule_updated_on',
-            'imageURL'
+            'imageURL',
+            'image_thumbnail'
         )
         extra_kwargs = {
             'shares_user_nearby': {'write_only': True},

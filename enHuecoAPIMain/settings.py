@@ -57,7 +57,8 @@ INSTALLED_APPS = (
     'schedules',
     'localization',
     'corsheaders',
-    'rest_framework_swagger'
+    'rest_framework_swagger',
+    'imagekit'
 
 )
 
