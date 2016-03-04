@@ -1,10 +1,11 @@
+import imagekit
 from django.db import models
 from django.utils import timezone
 from django.conf import settings
 from imagekit import ImageSpec, register
 from imagekit.models import ImageSpecField
 from imagekit.processors import ResizeToFill
-
+from imagekit.cachefiles import strategies
 #---------
 
 def generate_filename(self, filename):
@@ -14,7 +15,8 @@ def generate_filename(self, filename):
 class ThumbnailSpec(ImageSpec):
     processors=[ResizeToFill(100,100)]
     format='JPEG'
-    options={'quality': 90}
+    options={'quality': 80}
+    cachefile_strategy = strategies.Optimistic
 
     # put thumbnails into the "photos/thumbs" folder and
     # name them the same as the source file
@@ -54,6 +56,9 @@ class User(models.Model):
     ### Relationship
     friends = models.ManyToManyField('self', symmetrical=False, related_name='friends+', through='Friendship')
     requests_sent= models.ManyToManyField('self', through='FriendRequest',symmetrical=False, related_name='requests_received')
+
+    def get_image_thumbnail(self):
+        return self.image_thumbnail.url
 
     def isFriendsWith(self, otherUser):
         return otherUser in self.friends.all()

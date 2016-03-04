@@ -21,7 +21,7 @@ class UserSerializer(serializers.ModelSerializer):
             'updated_on',
             'schedule_updated_on',
             'imageURL',
-            'image_thumbnail'
+            'image_thumbnail',
         )
         extra_kwargs = {
             'shares_user_nearby': {'write_only': True},
@@ -29,6 +29,7 @@ class UserSerializer(serializers.ModelSerializer):
             'shares_event_locations': {'write_only': True}
         }
 
+    image_thumbnail = serializers.CharField(source='get_image_thumbnail')
 
 class UserSerializerWithSchedule(UserSerializer):
     gap_set = GapSerializer(many=True)
