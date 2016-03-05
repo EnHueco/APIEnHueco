@@ -61,22 +61,24 @@ class Authenticate(APIView) :
 
 		ldapWrapper = LDAPWrapper()
 		if (ldapWrapper.authenticate(user_id, password)) :
-			finalUser = None
-			try :
-				finalUser = User.objects.get(login=user_id)
-				# user already exists
-			except exceptions.ObjectDoesNotExist :
+
+			user = User.objects.filter(login=user_id).all()
+
+			# multiple users returned
+			if len(user) > 1: return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+			# user does not exist
+			elif len(user) == 0:
 				data = ldapWrapper.search(user_id)
 				firstNames = string.capwords(data['givenName'][0].strip())
 				lastNames = string.capwords(data['sn'][0].strip())
+				user = User.objects.create_user(login=user_id, firstNames=firstNames, lastNames=lastNames)
 
-				finalUser = User.objects.create(login=user_id, firstNames=firstNames, lastNames=lastNames)
-
-			except exceptions.MultipleObjectsReturned as e :
-				return Response(e.message, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-			token = Tokenizer.assignToken(finalUser)
-			serializer = TokenSerializer(token)
+			# user already exists
+			else:
+				user = user.first()
+			token = Tokenizer.assignToken(user)
+			serializer = TokenSerializer(instance=token)
 			return Response(serializer.data)
 
 		else :
@@ -116,7 +118,6 @@ class UserDetail(APIView) :
 	"""
 	User Detail
 	"""
-
 
 	def get (self, request) :
 		"""
@@ -473,7 +474,7 @@ class GapsFriendList(APIView) :
 		"""
 		self.set_authentication_params(request)
 		if self.authenticate() :
-			if Friendship.areFriendsPK(self.user_id, fpk) :
+			if Friendship.existsPK(self.user_id, fpk) :
 				return GapsViewSet().list(request, fpk)
 			else :
 				return Response(status=status.HTTP_403_FORBIDDEN)
@@ -502,7 +503,7 @@ class GapsCross(APIView) :
 		"""
 		self.set_authentication_params(request)
 		if self.authenticate() :
-			if Friendship.areFriendsPK(self.user_id, fpk) :
+			if Friendship.existsPK(self.user_id, fpk) :
 				return GapsViewSet().cross(request, pk1=self.user_id, pk2=fpk)
 			else :
 				return Response(status=status.HTTP_403_FORBIDDEN)

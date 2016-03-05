@@ -45,7 +45,7 @@ class UsersViewSet(viewsets.ViewSet) :
 class FriendsViewSet(viewsets.ViewSet) :
 	def show (self, request, pk, fpk) :
 
-		if (Friendship.areFriendsPK(pk, fpk)) :
+		if (Friendship.existsPK(pk, fpk)) :
 			return UsersViewSet().show(request, fpk)
 		else :
 			return Response("ERROR: Users are not friends")
@@ -76,7 +76,7 @@ class FriendsViewSet(viewsets.ViewSet) :
 
 	def delete (self, request, pk, fpk) :
 
-		if (Friendship.areFriendsPK(pk, fpk)) :
+		if (Friendship.existsPK(pk, fpk)) :
 
 			me = User.objects.get(login=pk)
 			friend = User.objects.get(login=fpk)

@@ -8,8 +8,6 @@ class GapSerializer(serializers.ModelSerializer) :
 		model = models.Gap
 		# read_only_fields = ('created_on', 'updated_on')
 
-
-
 	def __init__ (self, *args, **kwargs) :
 		# Don't pass the 'fields' arg up to the superclass
 		exclude = kwargs.pop('exclude', None)
@@ -23,7 +21,6 @@ class GapSerializer(serializers.ModelSerializer) :
 			for field_name in excluded :
 				self.fields.pop(field_name)
 
-
 	def to_representation (self, instance) :
 		repr = super(GapSerializer, self).to_representation(instance)
 
@@ -32,3 +29,13 @@ class GapSerializer(serializers.ModelSerializer) :
 			if not instance.user.shares_event_locations : repr['location'] = ''
 
 		return repr
+
+class ImmediateEventSerializer(serializers.ModelSerializer) :
+	class Meta:
+		model = models.ImmediateEvent
+
+class ImmediateEventSerializerNoUser(serializers.ModelSerializer) :
+	class Meta:
+		model = models.ImmediateEvent
+		exclude = ('user',)
+
