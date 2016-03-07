@@ -121,6 +121,12 @@ TOKENIZER_MODEL = 'tokenizer.Tokenizer'
 MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
+import socket
+if (socket.gethostname() == 'acm_production'):
+    SWAGGER_SETTINGS = {
+        'api_path' : '/api/'
+    }
+
 # ./manage.py collectstatic
 # chmod 664 ~/enhueco/db.sqlite3
 # sudo chown :www-data ~/enhueco/db.sqlite3
