@@ -9,7 +9,7 @@ from rest_framework import serializers
 # --- USER ---
 class UserSerializer(serializers.ModelSerializer):
 
-	immediate_event = ImmediateEventSerializerNoUser()
+	immediate_event = ImmediateEventSerializerNoUser(read_only=True)
 
 	class Meta:
 		model = User

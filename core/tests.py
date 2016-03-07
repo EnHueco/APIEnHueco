@@ -381,7 +381,7 @@ class PrivacyTestCase(EHAPITestCase) :
 
 			url = reverse('show-me')
 			response = self.client.put(url, data=friend_json_data, **friend_data)
-			print response
+#			print response
 
 			url = reverse('friend-list')
 			data = self.credentials_kwargs
@@ -390,7 +390,7 @@ class PrivacyTestCase(EHAPITestCase) :
 
 			for user in response.data :
 				for event in user['gap_set'] :
-					print event
+#					print event
 					if actual_boolean_value == False :
 						self.assertEqual(event['location'], '')
 						self.assertEqual(event['name'], '')
