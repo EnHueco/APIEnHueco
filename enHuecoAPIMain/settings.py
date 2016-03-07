@@ -122,7 +122,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
 import socket
-if (socket.gethostname() == 'acm_production'):
+if (socket.gethostname() == 'enhueco.uniandes.edu.co'):
     SWAGGER_SETTINGS = {
         'api_path' : '/api/'
     }
