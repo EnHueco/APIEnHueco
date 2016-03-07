@@ -33,6 +33,7 @@ class GapSerializer(serializers.ModelSerializer) :
 class ImmediateEventSerializer(serializers.ModelSerializer) :
 	class Meta:
 		model = models.ImmediateEvent
+		read_only = ('updated_on',)
 
 class ImmediateEventSerializerNoUser(serializers.ModelSerializer) :
 	class Meta:

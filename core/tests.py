@@ -1,7 +1,8 @@
 from django.core.urlresolvers import reverse
 
+from schedules.serializers import ImmediateEventSerializer
 from tokenizer.models import Tokenizer, Token
-from schedules.models import Gap
+from schedules.models import Gap, ImmediateEvent
 from users.serializers import *
 from rest_framework.test import APITestCase
 
@@ -13,17 +14,14 @@ class EHAPITestCase(APITestCase) :
 		self.my_login = 'test10'
 		self.friend_login = 'friend10'
 
-		self.me = User.create(login=self.my_login, firstNames='testNames', lastNames='testLastNames')
-		self.me.save()
-		self.my_token = Tokenizer.assignToken(self.me)
+		self.me, self.my_token = User.objects.create_user_and_token(login=self.my_login, first_names='testNames',
+																	last_names='testLastNames')
 
 		self.credentials_kwargs = {'HTTP_X_USER_ID' : self.my_login, 'HTTP_X_USER_TOKEN' : self.my_token.value}
 
-		self.friend = User.create(login=self.friend_login, firstNames='friendName', lastNames='friendLast')
-		self.friend.save()
-
-		self.friend_token = Tokenizer.assignToken(self.friend)
-
+		self.friend, self.friend_token = User.objects.create_user_and_token(login=self.friend_login,
+																			first_names='friendName',
+																			last_names='friendLast')
 		self.friend_credentials_kwargs = {'HTTP_X_USER_ID' :    self.friend_login,
 										  'HTTP_X_USER_TOKEN' : self.friend_token.value}
 
@@ -268,6 +266,20 @@ class SchedulesTestCase(EHAPITestCase) :
 
 		self.assertEqual(response.data, serializer.data)
 
+
+	def testUpdateImmediateEvent (self) :
+		url = reverse('show-immediate-events')
+		data = self.credentials_kwargs
+
+		immediate_event = ImmediateEvent(type=Gap.FREE_TIME, name='Immediate Event 1', location='Location 1')
+		serializer = ImmediateEventSerializerNoUser(instance=immediate_event)
+
+		response = self.client.put(url, serializer.data, **data)
+		response.data['updated_on'] = None
+
+		for key, value in serializer.data.iteritems() :
+			self.assertEqual(serializer.data[key], response.data[key])
+
 """
 	def testShowFriendGapsCross (self) :
 		url = reverse('show-friend-gaps-cross', kwargs={'fpk' : 'friend10'})
@@ -376,15 +388,17 @@ class PrivacyTestCase(EHAPITestCase) :
 
 			response = self.client.get(url, format='json', **data)
 
-			for user in response.data:
-				for event in user['gap_set']:
+			for user in response.data :
+				for event in user['gap_set'] :
 					print event
-					if actual_boolean_value == False:
-						self.assertEqual(event['location'],'')
-						self.assertEqual(event['name'],'')
-					else:
-						self.assertNotEqual(event['location'],'')
-						self.assertNotEqual(event['name'],'')
+					if actual_boolean_value == False :
+						self.assertEqual(event['location'], '')
+						self.assertEqual(event['name'], '')
+					else :
+						self.assertNotEqual(event['location'], '')
+						self.assertNotEqual(event['name'], '')
+
+
 
 # def testUpdateMyScheduleDay(self):
 

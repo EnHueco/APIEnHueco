@@ -19,6 +19,7 @@ urlpatterns = [
     url(r'^users/(?P<searchID>[a-zA-Z0-9\.]+)', views.UserList.as_view(), name='search-users'),
 # SCHEDULES
     url(r'^gaps/$', views.GapsList.as_view(), name='show-gaps'),
+    url(r'^events/immediate/$', views.ImmediateEventDetail.as_view(), name='show-immediate-events'),
     url(r'^gaps/(?P<gid>[0-9]+)/$', views.GapsDetail.as_view(), name='gap-detail'),
     url(r'^gaps/(?P<fpk>[a-z]+(\.)?[a-z]+[0-9]*)/$', views.GapsFriendList.as_view(), name='show-friend-gaps'),
 #    url(r'^gaps/now/$', , name='show-friend-gaps-now'),

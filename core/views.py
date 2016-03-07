@@ -14,8 +14,9 @@ from schedules.models import *
 from localization.models import *
 from users.serializers import *
 from tokenizer.serializers import *
+from schedules.serializers import *
 from localization.views import *
-from schedules.views import GapsViewSet
+from schedules.views import *
 from users.views import *
 
 import string
@@ -112,7 +113,6 @@ class UserImageDetail(APIView) :
 			return UsersViewSet().updateImageURL(request, self.user_id)
 		else :
 			return Response(status=status.HTTP_401_UNAUTHORIZED)
-
 
 class UserDetail(APIView) :
 	"""
@@ -384,7 +384,28 @@ class UserList(APIView) :
 			return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-# ------- GAPS -------
+# ------- Events -------
+
+class ImmediateEventDetail(APIView):
+	"""
+	Immediate Event detail
+	"""
+	def put (self, request) :
+		"""
+		Uploads User's Immediate Event information
+		---
+		parameters:
+			- name : X-USER-ID
+			  paramType: header
+			- name : X-USER-TOKEN
+			  paramType: header
+		response_serializer: ImmediateEventSerializer
+		"""
+		self.set_authentication_params(request)
+		if self.authenticate :
+			return ImmediateEventViewSet().update(request, pk=self.user_id)
+		else :
+			return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 class GapsDetail(APIView) :
 	"""
