@@ -5,7 +5,7 @@ from django.utils import timezone
 from rest_framework.parsers import JSONParser
 from django.utils.six import BytesIO
 import json
-
+import datetime
 
 # Create your models here.
 
@@ -107,6 +107,9 @@ class ImmediateEvent(models.Model) :
 	# Optional Values
 	name = models.TextField(null=False, default="")
 	location = models.TextField(null=False, default="")
+
+	# End date of the immediate event
+	valid_until = models.DateTimeField(default=datetime.datetime.now())
 
 	# Control Attributes
 	updated_on = models.DateTimeField(auto_now=True)
