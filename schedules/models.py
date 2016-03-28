@@ -102,7 +102,7 @@ class Gap(models.Model) :
 
 class ImmediateEvent(models.Model) :
 	# Event type -> Either FREE_TIME or CLASS
-	type = models.CharField(max_length=10, default=Gap.FREE_TIME)
+	type = models.CharField(max_length=30, default=Gap.FREE_TIME)
 
 	# Optional Values
 	name = models.TextField(null=False, default="")
