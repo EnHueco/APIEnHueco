@@ -24,7 +24,7 @@ class GapsViewSet(viewsets.ViewSet) :
                 if not serializer.is_valid() :
                     serializer = GapSerializer(data=request.data, exclude=('name','location',))
                     if not serializer.is_valid() :
-					    return Response(serializer.error_messages, status=status.HTTP_400_BAD_REQUEST)
+					    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 		serializer.save()
 		return Response(serializer.data)
 
@@ -58,7 +58,7 @@ class GapsViewSet(viewsets.ViewSet) :
 			if (serializer.is_valid()) :
 				serializer.save()
 				return Response(serializer.data)
-			return Response(serializer.error_messages, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+			return Response(serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 		else :
 			return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -71,6 +71,6 @@ class ImmediateEventViewSet(viewsets.ViewSet) :
 			if serializer.is_valid() :
 				serializer.save()
 				return Response(serializer.data)
-			return Response(serializer.error_messages, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+			return Response(serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 		else :
 			return Response('{error: "bad request"}',status=status.HTTP_400_BAD_REQUEST)
