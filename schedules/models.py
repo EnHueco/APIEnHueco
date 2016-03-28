@@ -15,7 +15,7 @@ class Gap(models.Model) :
 	CLASS = 'CLASS'
 
 	# Event type -> Used for further improvements on Gap class
-	type = models.CharField(max_length=10)
+	type = models.CharField(max_length=30)
 
 	# Optional Values
 	name = models.TextField()
