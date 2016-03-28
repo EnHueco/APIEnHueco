@@ -36,7 +36,8 @@ class ImmediateEventSerializer(serializers.ModelSerializer) :
 		read_only = ('updated_on',)
 
 class ImmediateEventSerializerNoUser(serializers.ModelSerializer) :
-	class Meta:
-		model = models.ImmediateEvent
-		exclude = ('user',)
+    class Meta:
+        exclude = ('user',)
+        read_only = ('updated_on',)
+
 

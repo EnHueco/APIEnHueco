@@ -21,8 +21,10 @@ class GapsViewSet(viewsets.ViewSet) :
 			serializer = GapSerializer(data=request.data, exclude=('name',))
 			if not serializer.is_valid() :
 				serializer = GapSerializer(data=request.data, exclude=('location',))
-				if not serializer.is_valid() :
-					return Response(serializer.error_messages, status=status.HTTP_400_BAD_REQUEST)
+                if not serializer.is_valid() :
+                    serializer = GapSerializer(data=request.data, exclude=('name','location',))
+                    if not serializer.is_valid() :
+					    return Response(serializer.error_messages, status=status.HTTP_400_BAD_REQUEST)
 		serializer.save()
 		return Response(serializer.data)
 
