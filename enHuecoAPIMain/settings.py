@@ -33,7 +33,7 @@ TEMPLATE_DEBUG = DEBUG
 
 ALLOWED_HOSTS = ['acm.uniandes.edu.co']
 
-DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%S'
+
 
 # CORS
 
@@ -112,6 +112,12 @@ USE_L10N = True
 
 STATIC_URL = '/static/'
 MEDIA_URL= '/media/'
+
+
+REST_FRAMEWORK = {
+    'DATETIME_FORMAT': "%Y-%m-%dT%H:%M:%S",
+}
+
 
 # MODEL CONSTANTS
 
