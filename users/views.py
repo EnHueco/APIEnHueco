@@ -6,6 +6,7 @@ from users.models import User, FriendRequest, Friendship
 from schedules.models import Gap
 from django.core import exceptions
 from django.db.models import Q
+from rest_framework import status
 
 
 # -------------
@@ -48,7 +49,7 @@ class FriendsViewSet(viewsets.ViewSet) :
 		if (Friendship.existsPK(pk, fpk)) :
 			return UsersViewSet().show(request, fpk)
 		else :
-			return Response("ERROR: Users are not friends")
+			return Response("ERROR: Users are not friends", status=status.HTTP_403_FORBIDDEN)
 
 
 	def list (self, request, pk, is_sync=False) :
@@ -151,7 +152,7 @@ class FriendsViewSet(viewsets.ViewSet) :
 
 		except exceptions.MultipleObjectsReturned :
 			# Multiple users found for same login
-			return Response('ERROR: # Multiple users found for same login')
+			return Response(status='ERROR: # Multiple users found for same login')
 
 
 class SentFriendRequestViewSet(viewsets.ViewSet) :

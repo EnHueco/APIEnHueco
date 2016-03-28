@@ -33,7 +33,7 @@ TEMPLATE_DEBUG = DEBUG
 
 ALLOWED_HOSTS = ['acm.uniandes.edu.co']
 
-
+DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%S'
 
 # CORS
 
