@@ -1,10 +1,11 @@
+from django.db.models import Q
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
 from models import Gap, ImmediateEvent
 from schedules.serializers import GapSerializer, ImmediateEventSerializer, ImmediateEventSerializerNoUser, \
     ImmediateEventSerializerNoUserNoLocation, ImmediateEventSerializerNoUserNoName, \
-    ImmediateEventSerializerNoUserNoNameNoLocation
+    ImmediateEventSerializerNoUserNoNameNoLocation, GapSerializerID
 
 
 class GapsViewSet(viewsets.ViewSet):
@@ -51,6 +52,17 @@ class GapsViewSet(viewsets.ViewSet):
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
+
+    def delete_many(self, request, pk):
+
+        gaps_query = Q()
+        events_to_delete = GapSerializerID(many=True, data=request.data)
+        if events_to_delete.is_valid() :
+            for event in events_to_delete.validated_data:
+                gaps_query = gaps_query | Q(user=event['user'])
+            Gap.objects.filter(gaps_query).delete()
+            return Response(status=status.HTTP_200_OK)
+        return Response(events_to_delete.errors,status=status.HTTP_400_BAD_REQUEST,)
 
     def update(self, request, pk, id):
 

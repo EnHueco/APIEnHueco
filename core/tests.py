@@ -1,4 +1,6 @@
 from django.core.urlresolvers import reverse
+from rest_framework import status
+from rest_framework.renderers import JSONRenderer
 
 from schedules.serializers import ImmediateEventSerializer
 from tokenizer.models import Tokenizer, Token
@@ -10,277 +12,273 @@ import datetime
 
 # Create your tests here.
 
-class EHAPITestCase(APITestCase) :
-	def setUp (self) :
-		self.my_login = 'test10'
-		self.friend_login = 'friend10'
+class EHAPITestCase(APITestCase):
+    def setUp(self):
+        self.my_login = 'test10'
+        self.friend_login = 'friend10'
 
-		self.me, self.my_token = User.objects.create_user_and_token(login=self.my_login, first_names='testNames',
-																	last_names='testLastNames')
+        self.me, self.my_token = User.objects.create_user_and_token(login=self.my_login, first_names='testNames',
+                                                                    last_names='testLastNames')
 
-		self.credentials_kwargs = {'HTTP_X_USER_ID' : self.my_login, 'HTTP_X_USER_TOKEN' : self.my_token.value}
+        self.credentials_kwargs = {'HTTP_X_USER_ID': self.my_login, 'HTTP_X_USER_TOKEN': self.my_token.value}
 
-		self.friend, self.friend_token = User.objects.create_user_and_token(login=self.friend_login,
-																			first_names='friendName',
-																			last_names='friendLast')
-		self.friend_credentials_kwargs = {'HTTP_X_USER_ID' :    self.friend_login,
-										  'HTTP_X_USER_TOKEN' : self.friend_token.value}
+        self.friend, self.friend_token = User.objects.create_user_and_token(login=self.friend_login,
+                                                                            first_names='friendName',
+                                                                            last_names='friendLast')
+        self.friend_credentials_kwargs = {'HTTP_X_USER_ID': self.friend_login,
+                                          'HTTP_X_USER_TOKEN': self.friend_token.value}
 
+    def addGapData(self):
+        self.gaps = []
+        self.friend_gaps = []
+        for i in range(1, 4):
+            new_gap = Gap.objects.create(name="Event {}".format(i), location="Location {}".format(i), type="CLASS",
+                                         start_hour_weekday=str(i), start_hour='100', end_hour='153', user=self.me)
 
-	def addGapData (self) :
-		self.gaps = []
-		self.friend_gaps = []
-		for i in range(1, 4) :
-			new_gap = Gap.objects.create(name="Event {}".format(i), location="Location {}".format(i), type="CLASS",
-										 start_hour_weekday=str(i), start_hour='100', end_hour='153', user=self.me)
+            new_friend_gap = Gap.objects.create(name="Friend Event {}".format(i),
+                                                location="Friend Location {}".format(i), type="CLASS",
+                                                start_hour_weekday=str(i), start_hour='100', end_hour='153',
+                                                user=self.friend)
+            self.gaps.append(new_gap)
+            self.friend_gaps.append(new_friend_gap)
 
-			new_friend_gap = Gap.objects.create(name="Friend Event {}".format(i),
-												location="Friend Location {}".format(i), type="CLASS",
-												start_hour_weekday=str(i), start_hour='100', end_hour='153',
-												user=self.friend)
-			self.gaps.append(new_gap)
-			self.friend_gaps.append(new_friend_gap)
+    def addFriendshipData(self):
+        friendship1 = Friendship(firstUser=self.me, secondUser=self.friend)
+        friendship1.save()
+        friendship2 = Friendship(firstUser=self.friend, secondUser=self.me)
+        friendship2.save()
 
 
-	def addFriendshipData (self) :
-		friendship1 = Friendship(firstUser=self.me, secondUser=self.friend)
-		friendship1.save()
-		friendship2 = Friendship(firstUser=self.friend, secondUser=self.me)
-		friendship2.save()
+class FriendRequestTestCase(EHAPITestCase):
+    def testSendFriendRequest(self):
+        url = reverse('friend-detail', kwargs={'fpk': self.friend_login})  # '/requests/create/'+self.friendLogin +'/'
+        data = self.credentials_kwargs
 
+        response = self.client.post(url, format='json', **data)
 
-class FriendRequestTestCase(EHAPITestCase) :
-	def testSendFriendRequest (self) :
-		url = reverse('friend-detail', kwargs={'fpk' : self.friend_login})  # '/requests/create/'+self.friendLogin +'/'
-		data = self.credentials_kwargs
+        fr = FriendRequest(fromUser=self.me, toUser=self.friend)
+        fr.save()
 
-		response = self.client.post(url, format='json', **data)
+        self.assertTrue(self.friend in self.me.requests_sent.all())
 
-		fr = FriendRequest(fromUser=self.me, toUser=self.friend)
-		fr.save()
+    def testSendExistingFriendRequest(self):
+        url = reverse('friend-detail', kwargs={'fpk': self.friend_login})  # '/requests/create/'+self.friendLogin +'/'
+        data = self.credentials_kwargs
 
-		self.assertTrue(self.friend in self.me.requests_sent.all())
+        response = self.client.post(url, format='json', **data)
+        response = self.client.post(url, format='json', **data)
 
+        self.assertEqual(response.data, 'ERROR: Already sent request')
 
-	def testSendExistingFriendRequest (self) :
-		url = reverse('friend-detail', kwargs={'fpk' : self.friend_login})  # '/requests/create/'+self.friendLogin +'/'
-		data = self.credentials_kwargs
+    def testSendExistingReverseFriendRequest(self):
+        friendRequest = FriendRequest.objects.create(fromUser=self.friend, toUser=self.me)
 
-		response = self.client.post(url, format='json', **data)
-		response = self.client.post(url, format='json', **data)
+        url = reverse('friend-detail', kwargs={'fpk': self.friend_login})  # '/requests/create/'+self.friendLogin +'/'
+        data = self.credentials_kwargs
 
-		self.assertEqual(response.data, 'ERROR: Already sent request')
+        response = self.client.post(url, format='json', **data)
 
+        newFriendShip = Friendship.objects.create(firstUser=self.me, secondUser=self.friend)
 
-	def testSendExistingReverseFriendRequest (self) :
-		friendRequest = FriendRequest.objects.create(fromUser=self.friend, toUser=self.me)
+        self.assertTrue(self.friend in self.me.friends.all())
+        self.assertTrue(self.me in self.friend.friends.all())
 
-		url = reverse('friend-detail', kwargs={'fpk' : self.friend_login})  # '/requests/create/'+self.friendLogin +'/'
-		data = self.credentials_kwargs
+    def testShowReceivedFriendRequests(self):
+        url = reverse('received-friend-requests-list')
+        data = self.credentials_kwargs
 
-		response = self.client.post(url, format='json', **data)
+        response = self.client.get(url, format='json', **data)
 
-		newFriendShip = Friendship.objects.create(firstUser=self.me, secondUser=self.friend)
+        friends = self.me.requests_received.all()
+        serializer = FriendRequestSerializer(friends, many=True)
 
-		self.assertTrue(self.friend in self.me.friends.all())
-		self.assertTrue(self.me in self.friend.friends.all())
+        self.assertEqual(response.data, serializer.data)
 
+    def testShowSentFriendRequests(self):
+        url = reverse('sent-friend-requests-list')
+        data = self.credentials_kwargs
 
-	def testShowReceivedFriendRequests (self) :
-		url = reverse('received-friend-requests-list')
-		data = self.credentials_kwargs
+        response = self.client.get(url, format='json', **data)
 
-		response = self.client.get(url, format='json', **data)
+        friends = self.me.requests_sent.all()
+        serializer = FriendRequestSerializer(friends, many=True)
 
-		friends = self.me.requests_received.all()
-		serializer = FriendRequestSerializer(friends, many=True)
+        self.assertEqual(response.data, serializer.data)
 
-		self.assertEqual(response.data, serializer.data)
 
+class FriendshipTestCase(APITestCase):
+    def setUp(self):
+        self.myLogin = 'test10'
+        self.friendLogin = 'friend10'
 
-	def testShowSentFriendRequests (self) :
-		url = reverse('sent-friend-requests-list')
-		data = self.credentials_kwargs
+        self.me = User.create(login=self.myLogin, firstNames='testNames', lastNames='testLastNames')
+        self.me.save()
+        self.myToken = Tokenizer.assignToken(self.me)
 
-		response = self.client.get(url, format='json', **data)
+        self.friend = User.create(login=self.friendLogin, firstNames='friendName', lastNames='friendLast')
+        self.friend.save()
 
-		friends = self.me.requests_sent.all()
-		serializer = FriendRequestSerializer(friends, many=True)
+    def testShowAllSyncFriends(self):
+        friendship1 = Friendship(firstUser=self.me, secondUser=self.friend)
+        friendship2 = Friendship(firstUser=self.friend, secondUser=self.me)
 
-		self.assertEqual(response.data, serializer.data)
+        friendship1.save()
+        friendship2.save()
 
+        serializer = UserSyncSerializer(self.me.friends.all(), many=True)
 
-class FriendshipTestCase(APITestCase) :
-	def setUp (self) :
-		self.myLogin = 'test10'
-		self.friendLogin = 'friend10'
+        url = reverse('friend-list-sync')
+        data = {'HTTP_X_USER_ID': self.myLogin, 'HTTP_X_USER_TOKEN': self.myToken.value}
+        encodedFriend = {'login': self.friend.login}
 
-		self.me = User.create(login=self.myLogin, firstNames='testNames', lastNames='testLastNames')
-		self.me.save()
-		self.myToken = Tokenizer.assignToken(self.me)
+        response = self.client.get(url, format='json', **data)
 
-		self.friend = User.create(login=self.friendLogin, firstNames='friendName', lastNames='friendLast')
-		self.friend.save()
+        self.assertEqual(response.data, serializer.data)
 
+        pass
 
-	def testShowAllSyncFriends (self) :
-		friendship1 = Friendship(firstUser=self.me, secondUser=self.friend)
-		friendship2 = Friendship(firstUser=self.friend, secondUser=self.me)
+    def testShowAllFriends(self):
+        friendship1 = Friendship(firstUser=self.me, secondUser=self.friend)
+        friendship2 = Friendship(firstUser=self.friend, secondUser=self.me)
 
-		friendship1.save()
-		friendship2.save()
+        friendship1.save()
+        friendship2.save()
 
-		serializer = UserSyncSerializer(self.me.friends.all(), many=True)
+        serializer = UserSerializerWithSchedule(self.me.friends.all(), many=True)
 
-		url = reverse('friend-list-sync')
-		data = {'HTTP_X_USER_ID' : self.myLogin, 'HTTP_X_USER_TOKEN' : self.myToken.value}
-		encodedFriend = {'login' : self.friend.login}
+        url = reverse('friend-list')
+        data = {'HTTP_X_USER_ID': self.myLogin, 'HTTP_X_USER_TOKEN': self.myToken.value}
+        encodedFriend = {'login': self.friend.login}
 
-		response = self.client.get(url, format='json', **data)
+        response = self.client.get(url, format='json', **data)
 
-		self.assertEqual(response.data, serializer.data)
+        self.assertEqual(response.data, serializer.data)
 
-		pass
+        pass
 
+    def testShowSomeFriends(self):
+        friendship1 = Friendship(firstUser=self.me, secondUser=self.friend)
+        friendship2 = Friendship(firstUser=self.friend, secondUser=self.me)
 
-	def testShowAllFriends (self) :
-		friendship1 = Friendship(firstUser=self.me, secondUser=self.friend)
-		friendship2 = Friendship(firstUser=self.friend, secondUser=self.me)
+        friendship1.save()
+        friendship2.save()
 
-		friendship1.save()
-		friendship2.save()
+        serializer = UserSerializerWithSchedule(self.me.friends.all(), many=True)
 
-		serializer = UserSerializerWithSchedule(self.me.friends.all(), many=True)
+        url = reverse('friend-list')
+        data = {'HTTP_X_USER_ID': self.myLogin, 'HTTP_X_USER_TOKEN': self.myToken.value}
+        encodedFriend = {'login': self.friend.login}
 
-		url = reverse('friend-list')
-		data = {'HTTP_X_USER_ID' : self.myLogin, 'HTTP_X_USER_TOKEN' : self.myToken.value}
-		encodedFriend = {'login' : self.friend.login}
+        response = self.client.post(url, data=encodedFriend, **data)
 
-		response = self.client.get(url, format='json', **data)
+        self.assertEqual(response.data, serializer.data)
 
-		self.assertEqual(response.data, serializer.data)
+        pass
 
-		pass
+    def testShowFriend(self):
+        url = reverse('friend-detail', kwargs={'fpk': self.friendLogin})
+        data = {'HTTP_X_USER_ID': self.myLogin, 'HTTP_X_USER_TOKEN': self.myToken.value}
 
+        friendship1 = Friendship(firstUser=self.me, secondUser=self.friend)
+        friendship2 = Friendship(firstUser=self.friend, secondUser=self.me)
 
-	def testShowSomeFriends (self) :
-		friendship1 = Friendship(firstUser=self.me, secondUser=self.friend)
-		friendship2 = Friendship(firstUser=self.friend, secondUser=self.me)
+        friendship1.save()
+        friendship2.save()
 
-		friendship1.save()
-		friendship2.save()
+        response = self.client.get(url, format='json', **data)
 
-		serializer = UserSerializerWithSchedule(self.me.friends.all(), many=True)
+        serializer = UserSerializerWithSchedule(self.friend)
 
-		url = reverse('friend-list')
-		data = {'HTTP_X_USER_ID' : self.myLogin, 'HTTP_X_USER_TOKEN' : self.myToken.value}
-		encodedFriend = {'login' : self.friend.login}
+        self.assertEqual(response.data, serializer.data)
 
-		response = self.client.post(url, data=encodedFriend, **data)
+    def testShowUnfriendedFriend(self):
+        url = reverse('friend-detail', kwargs={'fpk': self.friendLogin})
+        data = {'HTTP_X_USER_ID': self.myLogin, 'HTTP_X_USER_TOKEN': self.myToken.value}
 
-		self.assertEqual(response.data, serializer.data)
+        friendship1 = Friendship(firstUser=self.me, secondUser=self.friend)
+        friendship2 = Friendship(firstUser=self.friend, secondUser=self.me)
 
-		pass
+        response = self.client.get(url, format='json', **data)
 
+        self.assertEqual(response.data, 'ERROR: Users are not friends')
 
-	def testShowFriend (self) :
-		url = reverse('friend-detail', kwargs={'fpk' : self.friendLogin})
-		data = {'HTTP_X_USER_ID' : self.myLogin, 'HTTP_X_USER_TOKEN' : self.myToken.value}
+    def testShowAllFriends(self):
+        url = reverse('friend-list')
+        data = {'HTTP_X_USER_ID': self.myLogin, 'HTTP_X_USER_TOKEN': self.myToken.value}
 
-		friendship1 = Friendship(firstUser=self.me, secondUser=self.friend)
-		friendship2 = Friendship(firstUser=self.friend, secondUser=self.me)
+        response = self.client.get(url, format='json', **data)
 
-		friendship1.save()
-		friendship2.save()
+        friends = self.me.friends.all()
+        serializer = FriendshipSerializer(friends, many=True)
 
-		response = self.client.get(url, format='json', **data)
+        self.assertEqual(response.data, serializer.data)
 
-		serializer = UserSerializerWithSchedule(self.friend)
+    def testDeleteFriend(self):
+        url = reverse('friend-detail', kwargs={'fpk': self.friend.login})
+        data = {'HTTP_X_USER_ID': self.myLogin, 'HTTP_X_USER_TOKEN': self.myToken.value}
+        args = {'fpk': self.me.login}
 
-		self.assertEqual(response.data, serializer.data)
+        friendship1 = Friendship(firstUser=self.me, secondUser=self.friend)
+        friendship2 = Friendship(firstUser=self.friend, secondUser=self.me)
 
+        friendship1.save()
+        friendship2.save()
 
-	def testShowUnfriendedFriend (self) :
-		url = reverse('friend-detail', kwargs={'fpk' : self.friendLogin})
-		data = {'HTTP_X_USER_ID' : self.myLogin, 'HTTP_X_USER_TOKEN' : self.myToken.value}
+        response = self.client.delete(url, **data)
 
-		friendship1 = Friendship(firstUser=self.me, secondUser=self.friend)
-		friendship2 = Friendship(firstUser=self.friend, secondUser=self.me)
-
-		response = self.client.get(url, format='json', **data)
-
-		self.assertEqual(response.data, 'ERROR: Users are not friends')
-
-
-	def testShowAllFriends (self) :
-		url = reverse('friend-list')
-		data = {'HTTP_X_USER_ID' : self.myLogin, 'HTTP_X_USER_TOKEN' : self.myToken.value}
-
-		response = self.client.get(url, format='json', **data)
-
-		friends = self.me.friends.all()
-		serializer = FriendshipSerializer(friends, many=True)
-
-		self.assertEqual(response.data, serializer.data)
-
-
-	def testDeleteFriend (self) :
-		url = reverse('friend-detail', kwargs={'fpk' : self.friend.login})
-		data = {'HTTP_X_USER_ID' : self.myLogin, 'HTTP_X_USER_TOKEN' : self.myToken.value}
-		args = {'fpk' : self.me.login}
-
-		friendship1 = Friendship(firstUser=self.me, secondUser=self.friend)
-		friendship2 = Friendship(firstUser=self.friend, secondUser=self.me)
-
-		friendship1.save()
-		friendship2.save()
-
-		response = self.client.delete(url, **data)
-
-		self.assertFalse(self.me in self.friend.friends.all())
+        self.assertFalse(self.me in self.friend.friends.all())
 
 
 # ----- SCHEDULES -----
-class SchedulesTestCase(EHAPITestCase) :
-	def setUp (self) :
-		super(SchedulesTestCase, self).setUp()
-		super(SchedulesTestCase, self).addGapData()
-		super(SchedulesTestCase, self).addFriendshipData()
+class SchedulesTestCase(EHAPITestCase):
+    def setUp(self):
+        super(SchedulesTestCase, self).setUp()
+        super(SchedulesTestCase, self).addGapData()
+        super(SchedulesTestCase, self).addFriendshipData()
 
+    def testShowGaps(self):
+        url = reverse('show-gaps')
+        data = self.credentials_kwargs
 
-	def testShowGaps (self) :
-		url = reverse('show-gaps')
-		data = self.credentials_kwargs
+        response = self.client.get(url, **data)
+        serializer = GapSerializer(self.gaps, many=True)
 
-		response = self.client.get(url, **data)
-		serializer = GapSerializer(self.gaps, many=True)
+        self.assertEqual(response.data, serializer.data)
 
-		self.assertEqual(response.data, serializer.data)
+    def testDeleteGaps(self):
+        url = reverse('show-gaps')
+        data = self.credentials_kwargs
 
+        serializer = GapSerializer(self.me.gap_set.all(), many=True)
+        response = self.client.delete(url, serializer.data, format='json', **data )
 
-	def testShowFriendSchedule (self) :
-		url = reverse('show-friend-gaps', kwargs={'fpk' : 'friend10'})
-		data = self.credentials_kwargs
+        self.gaps = User.objects.get(login=self.my_login).gap_set.all()
 
-		response = self.client.get(url, format='json', **data)
-		serializer = GapSerializer(self.friend.gap_set.all(), many=True)
+        self.assertTrue(response.status_code == status.HTTP_200_OK)
+        self.assertTrue(len(self.me.gap_set.all()) == 0)
 
-		self.assertEqual(response.data, serializer.data)
+    def testShowFriendSchedule(self):
+        url = reverse('show-friend-gaps', kwargs={'fpk': 'friend10'})
+        data = self.credentials_kwargs
 
+        response = self.client.get(url, format='json', **data)
+        serializer = GapSerializer(self.friend.gap_set.all(), many=True)
 
-	def testUpdateImmediateEvent (self) :
-		url = reverse('show-immediate-events')
-		data = self.credentials_kwargs
+        self.assertEqual(response.data, serializer.data)
 
-		immediate_event = ImmediateEvent(type=Gap.FREE_TIME, name='Immediate Event 1', location='Location 1',
-										 valid_until=datetime.datetime.now())
-		serializer = ImmediateEventSerializerNoUser(instance=immediate_event)
+    def testUpdateImmediateEvent(self):
+        url = reverse('show-immediate-events')
+        data = self.credentials_kwargs
 
-		response = self.client.put(url, serializer.data, **data)
-		response.data['updated_on'] = None
+        immediate_event = ImmediateEvent(type=Gap.FREE_TIME, name='Immediate Event 1', location='Location 1',
+                                         valid_until=datetime.datetime.now())
+        serializer = ImmediateEventSerializerNoUser(instance=immediate_event)
 
-		for key, value in serializer.data.iteritems() :
-			self.assertEqual(serializer.data[key], response.data[key])
+        response = self.client.put(url, serializer.data, **data)
+        response.data['updated_on'] = None
+
+        for key, value in serializer.data.iteritems():
+            self.assertEqual(serializer.data[key], response.data[key])
 
 
 """
@@ -342,66 +340,62 @@ class SchedulesTestCase(EHAPITestCase) :
 """
 
 
-class PrivacyTestCase(EHAPITestCase) :
-	def setUp (self) :
-		super(PrivacyTestCase, self).setUp()
-		super(PrivacyTestCase, self).addGapData()
-		super(PrivacyTestCase, self).addFriendshipData()
+class PrivacyTestCase(EHAPITestCase):
+    def setUp(self):
+        super(PrivacyTestCase, self).setUp()
+        super(PrivacyTestCase, self).addGapData()
+        super(PrivacyTestCase, self).addFriendshipData()
 
+    def testUpdateLocationPrivacyAttributes(self):
+        url = reverse('show-me')
+        data = self.credentials_kwargs
 
-	def testUpdateLocationPrivacyAttributes (self) :
-		url = reverse('show-me')
-		data = self.credentials_kwargs
+        possible_values = [False, True]
 
-		possible_values = [False, True]
+        for actual_value in possible_values:
+            user_json_data = UserSerializer(self.me).data
+            user_json_data['shares_event_names'] = actual_value
+            user_json_data['shares_event_locations'] = actual_value
+            response = self.client.put(url, data=user_json_data, **data)
 
-		for actual_value in possible_values :
-			user_json_data = UserSerializer(self.me).data
-			user_json_data['shares_event_names'] = actual_value
-			user_json_data['shares_event_locations'] = actual_value
-			response = self.client.put(url, data=user_json_data, **data)
+            self.me = User.objects.get(login=self.me.login)
 
-			self.me = User.objects.get(login=self.me.login)
+            self.assertTrue(self.me.shares_event_names == actual_value,
+                            "User attribute 'shares event_names' is not being updated to {}.".format(actual_value))
+            self.assertTrue(self.me.shares_event_locations == actual_value,
+                            "User attribute 'shares_event_locations' is not being updated to False.".format(
+                                actual_value))
 
-			self.assertTrue(self.me.shares_event_names == actual_value,
-							"User attribute 'shares event_names' is not being updated to {}.".format(actual_value))
-			self.assertTrue(self.me.shares_event_locations == actual_value,
-							"User attribute 'shares_event_locations' is not being updated to False.".format(
-									actual_value))
+    def testHidesLocationPrivacyValues(self):
+        url = reverse('show-me')
+        friend_data = self.friend_credentials_kwargs
 
+        possible_values = [False, True]
 
-	def testHidesLocationPrivacyValues (self) :
-		url = reverse('show-me')
-		friend_data = self.friend_credentials_kwargs
+        for actual_boolean_value in possible_values:
 
-		possible_values = [False, True]
+            friend_json_data = UserSerializer(self.friend).data
+            friend_json_data['shares_event_names'] = actual_boolean_value
+            friend_json_data['shares_event_locations'] = actual_boolean_value
 
-		for actual_boolean_value in possible_values :
+            url = reverse('show-me')
+            response = self.client.put(url, data=friend_json_data, **friend_data)
+            #			print response
 
-			friend_json_data = UserSerializer(self.friend).data
-			friend_json_data['shares_event_names'] = actual_boolean_value
-			friend_json_data['shares_event_locations'] = actual_boolean_value
+            url = reverse('friend-list')
+            data = self.credentials_kwargs
 
-			url = reverse('show-me')
-			response = self.client.put(url, data=friend_json_data, **friend_data)
-			#			print response
+            response = self.client.get(url, format='json', **data)
 
-			url = reverse('friend-list')
-			data = self.credentials_kwargs
-
-			response = self.client.get(url, format='json', **data)
-
-			for user in response.data :
-				for event in user['gap_set'] :
-					#					print event
-					if actual_boolean_value == False :
-						self.assertEqual(event['location'], '')
-						self.assertEqual(event['name'], '')
-					else :
-						self.assertNotEqual(event['location'], '')
-						self.assertNotEqual(event['name'], '')
-
-
+            for user in response.data:
+                for event in user['gap_set']:
+                    #					print event
+                    if actual_boolean_value == False:
+                        self.assertEqual(event['location'], '')
+                        self.assertEqual(event['name'], '')
+                    else:
+                        self.assertNotEqual(event['location'], '')
+                        self.assertNotEqual(event['name'], '')
 
 # def testUpdateMyScheduleDay(self):
 

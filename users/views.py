@@ -58,7 +58,7 @@ class FriendsViewSet(viewsets.ViewSet) :
 
 		serializer = UserIDSerializer(data=request.data)
 		# Filter requested friends, if any.
-		if serializer.is_valid() :
+		if serializer.is_valid():
 			my_filter_qs = Q()
 			for login in serializer.validated_data :
 				my_filter_qs = my_filter_qs | Q(login=login)
