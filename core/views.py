@@ -474,7 +474,7 @@ class GapsList(APIView):
         """
         self.set_authentication_params(request)
         if self.authenticate():
-            return GapsViewSet().create(request)
+            return GapsViewSet().create_many(request, self.user_id)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 

@@ -24,17 +24,23 @@ class GapSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         repr = super(GapSerializer, self).to_representation(instance)
 
-        if instance.user != None:
+        if hasattr(instance, 'user'):
             if not instance.user.shares_event_names: repr['name'] = ''
             if not instance.user.shares_event_locations: repr['location'] = ''
 
         return repr
 
-
-class GapSerializerID(serializers.ModelSerializer):
+class EventSerializerNoUser(GapSerializer):
     class Meta:
         model = models.Gap
-        fields = ('id', 'user')
+        exclude = ('user',)
+
+class GapSerializerID(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.Gap
+        fields = ('id',)
+        extra_kwargs = {'id': {'read_only': False}}
 
 
 class ImmediateEventSerializer(serializers.ModelSerializer):

@@ -5,7 +5,8 @@ from rest_framework import status
 from models import Gap, ImmediateEvent
 from schedules.serializers import GapSerializer, ImmediateEventSerializer, ImmediateEventSerializerNoUser, \
     ImmediateEventSerializerNoUserNoLocation, ImmediateEventSerializerNoUserNoName, \
-    ImmediateEventSerializerNoUserNoNameNoLocation, GapSerializerID
+    ImmediateEventSerializerNoUserNoNameNoLocation, GapSerializerID, EventSerializerNoUser
+from users.models import User
 
 
 class GapsViewSet(viewsets.ViewSet):
@@ -30,6 +31,21 @@ class GapsViewSet(viewsets.ViewSet):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
         return Response(serializer.data)
+
+    def create_many(self, request, pk):
+
+        valid_serializers = [EventSerializerNoUser(data=request.data,many=True),
+                             EventSerializerNoUser(data=request.data, exclude=('name',), many=True),
+                             EventSerializerNoUser(data=request.data, exclude=('location',), many=True),
+                             EventSerializerNoUser(data=request.data, exclude=('name', 'location',), many=True)
+                             ]
+        for serializer in valid_serializers:
+            if serializer.is_valid():
+                user = User.objects.get(login=pk)
+                serializer.save(user=user)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+        last_serializer = valid_serializers[len(valid_serializers)-1]
+        return Response(last_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
     def cross(self, request, pk1, pk2):
@@ -59,10 +75,10 @@ class GapsViewSet(viewsets.ViewSet):
         events_to_delete = GapSerializerID(many=True, data=request.data)
         if events_to_delete.is_valid() :
             for event in events_to_delete.validated_data:
-                gaps_query = gaps_query | Q(user=event['user'])
+                gaps_query = gaps_query | Q(id=event['id'])
             Gap.objects.filter(gaps_query).delete()
             return Response(status=status.HTTP_200_OK)
-        return Response(events_to_delete.errors,status=status.HTTP_400_BAD_REQUEST,)
+        return Response(events_to_delete.errors,status=status.HTTP_400_BAD_REQUEST)
 
     def update(self, request, pk, id):
 

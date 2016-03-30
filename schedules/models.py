@@ -14,6 +14,8 @@ class Gap(models.Model) :
 	FREE_TIME = 'FT'
 	CLASS = 'CLASS'
 
+	id = models.AutoField(primary_key=True)
+
 	# Event type -> Used for further improvements on Gap class
 	type = models.CharField(max_length=30)
 
