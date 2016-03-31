@@ -42,7 +42,8 @@ class Gap(models.Model) :
 
 		# Set new user schedule updated on
 		self.user.schedule_updated_on = self.updated_on
-		self.user.save(update_fields=["schedule_updated_on"])
+		self.user.updated_on = self.updated_on
+		self.user.save(update_fields=["immediate_event_updated_on", "updated_on"])
 
 
 	@classmethod
@@ -129,4 +130,5 @@ class ImmediateEvent(models.Model) :
 
 		# Set new user schedule updated on
 		self.user.immediate_event_updated_on = self.updated_on
-		self.user.save(update_fields=["immediate_event_updated_on"])
+		self.user.updated_on = self.updated_on
+		self.user.save(update_fields=["immediate_event_updated_on", "updated_on"])
