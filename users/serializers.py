@@ -50,7 +50,7 @@ class UserLocationSerializer(serializers.ModelSerializer):
 class UserSyncSerializer(serializers.ModelSerializer):
     class Meta:
 		model = User
-		fields = ('login', 'schedule_updated_on', 'updated_on')
+		fields = ('login', 'updated_on', 'schedule_updated_on', 'immediate_event_updated_on')
 
 class UserIDSerializer(serializers.ModelSerializer):
     class Meta:
