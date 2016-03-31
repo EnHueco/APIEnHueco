@@ -167,13 +167,12 @@ class FriendshipTestCase(APITestCase):
 
         url = reverse('friend-list')
         data = {'HTTP_X_USER_ID': self.myLogin, 'HTTP_X_USER_TOKEN': self.myToken.value}
-        encodedFriend = {'login': self.friend.login}
+        encodedFriend = [{'login': self.friend.login}]
 
-        response = self.client.post(url, data=encodedFriend, **data)
+        response = self.client.post(url, data=encodedFriend, format='json', **data)
 
         self.assertEqual(response.data, serializer.data)
 
-        pass
 
     def testShowFriend(self):
         url = reverse('friend-detail', kwargs={'fpk': self.friendLogin})
@@ -262,6 +261,7 @@ class SchedulesTestCase(EHAPITestCase):
         self.assertTrue(response.status_code == status.HTTP_200_OK)
         response.render()
         for i, newly_created_event in enumerate(response.data):
+
             for event_attribute in newly_created_event.keys():
                 new_attributes = ('id', 'created_on', 'updated_on')
                 if event_attribute not in new_attributes:
@@ -336,7 +336,30 @@ class SchedulesTestCase(EHAPITestCase):
 		self.assertEqual(serializer.data['start_hour_weekday'], response.data['start_hour_weekday'])
 		self.assertEqual(serializer.data['user'], response.data['user'])
 
+	def testAddGap (self) :
+		newGap = Gap(type='GAP', name='My Gap', location='Building A', start_hour_weekday='5', start_hour='100',
+					 end_hour_weekday='5', end_hour='153', user=self.me)
+		serializer = GapSerializer(newGap)
 
+		gapCount = User.objects.get(login=self.me.login).gap_set.all().count()
+		url = reverse('show-gaps')
+		data = {'HTTP_X_USER_ID' : self.my_login, 'HTTP_X_USER_TOKEN' : self.my_token.value}
+		gap = {'type' :             'GAP', 'name' : 'My Gap', 'location' : 'Building A', 'start_hour_weekday' : '5',
+			   'end_hour_weekday' : '5', 'start_hour' : '100', 'end_hour' : '153', 'user' : self.me}
+
+		response = self.client.post(url, data=gap, **data)
+
+		gapCount2 = User.objects.get(login=self.me.login).gap_set.all().count()
+
+		# Amount of gaps +1
+		self.assertTrue(gapCount + 1 == gapCount2)
+
+		# Returns the new Gap
+		self.assertEqual(serializer.data['name'], response.data['name'])
+		self.assertEqual(serializer.data['start_hour'], response.data['start_hour'])
+		self.assertEqual(serializer.data['end_hour'], response.data['end_hour'])
+		self.assertEqual(serializer.data['start_hour_weekday'], response.data['start_hour_weekday'])
+		self.assertEqual(serializer.data['user'], response.data['user'])
 """
 
 
