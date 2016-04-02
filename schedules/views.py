@@ -84,11 +84,17 @@ class GapsViewSet(viewsets.ViewSet):
 
         gap = Gap.objects.filter(user_id=pk, id=id).first()
         if (gap is not None):
-            serializer = GapSerializer(gap, partial=True, data=request.data)
-            if (serializer.is_valid()):
-                serializer.save()
-                return Response(serializer.data)
-            return Response(serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            valid_serializers = [GapSerializer(gap, data=request.data),
+                                 GapSerializer(gap, data=request.data, exclude=('name',) ),
+                                 GapSerializer(gap, data=request.data, exclude=('location',)),
+                                 GapSerializer(gap, data=request.data, exclude=('name', 'location',))
+                                 ]
+            for serializer in valid_serializers:
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(serializer.data)
+            last_serializer = valid_serializers[len(valid_serializers)-1]
+            return Response(last_serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
