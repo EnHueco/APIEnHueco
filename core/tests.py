@@ -2,6 +2,7 @@ from django.core.urlresolvers import reverse
 from rest_framework import status
 from rest_framework.renderers import JSONRenderer
 
+from enHuecoAPIMain import settings
 from schedules.serializers import ImmediateEventSerializer
 from tokenizer.models import Tokenizer, Token
 from schedules.models import Gap, ImmediateEvent
@@ -253,7 +254,7 @@ class SchedulesTestCase(EHAPITestCase):
                             start_hour_weekday=str(i), start_hour='200', end_hour_weekday=str(i), end_hour='210')
             events_to_add.append(new_event)
 
-        serializer = GapSerializer(events_to_add, many=True, exclude=('id', 'user', 'created_on', 'updated_on'))
+        serializer = GapSerializer(events_to_add, many=True)
 
         response = self.client.post(url, serializer.data, format='json', **data)
 
@@ -265,6 +266,30 @@ class SchedulesTestCase(EHAPITestCase):
                 new_attributes = ('id', 'created_on', 'updated_on')
                 if event_attribute not in new_attributes:
                     self.assertEqual(newly_created_event[event_attribute], getattr(events_to_add[i], event_attribute))
+
+    def testUpdateGap(self):
+        data = self.credentials_kwargs
+        self.gap = self.me.gap_set.all()[0]
+        self.gap.name = ""
+        self.gap.location = ""
+        self.gap.start_hour = "123"
+        self.gap.end_hour = "456"
+        self.gap.start_hour_weekday = "1"
+        self.gap.end_hour_weekday = "2"
+
+        url = reverse('gap-detail', kwargs={'gid': self.gap.id})
+
+        serializer = GapSerializer(self.gap)
+        response = self.client.put(url, serializer.data, **data)
+
+        for key in response.data.keys():
+            if key == 'user':
+                self.assertEqual(response.data[key], getattr(self.gap, key).login)
+            elif '_on' in key :
+                self.assertEqual(response.data[key], getattr(self.gap, key).strftime(settings.DATETIME_FORMAT))
+            else:
+                self.assertEqual(response.data[key], getattr(self.gap, key))
+
 
     def testDeleteGaps(self):
         url = reverse('show-gaps')

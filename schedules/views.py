@@ -21,30 +21,18 @@ class GapsViewSet(viewsets.ViewSet):
         serializer = GapSerializer(data=request.data)
 
         if not serializer.is_valid():
-            serializer = GapSerializer(data=request.data, exclude=('name',))
-            if not serializer.is_valid():
-                serializer = GapSerializer(data=request.data, exclude=('location',))
-        if not serializer.is_valid():
-            serializer = GapSerializer(data=request.data, exclude=('name', 'location',))
-            if not serializer.is_valid():
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
         return Response(serializer.data)
 
     def create_many(self, request, pk):
 
-        valid_serializers = [EventSerializerNoUser(data=request.data, many=True),
-                             EventSerializerNoUser(data=request.data, exclude=('name',), many=True),
-                             EventSerializerNoUser(data=request.data, exclude=('location',), many=True),
-                             EventSerializerNoUser(data=request.data, exclude=('name', 'location',), many=True)
-                             ]
-        for serializer in valid_serializers:
-            if serializer.is_valid():
-                user = User.objects.get(login=pk)
-                serializer.save(user=user)
-                return Response(serializer.data, status=status.HTTP_200_OK)
-        last_serializer = valid_serializers[len(valid_serializers) - 1]
-        return Response(last_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer = EventSerializerNoUser(data=request.data, many=True)
+        if serializer.is_valid():
+            user = User.objects.get(login=pk)
+            serializer.save(user=user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def cross(self, request, pk1, pk2):
 
@@ -79,18 +67,12 @@ class GapsViewSet(viewsets.ViewSet):
     def update(self, request, pk, id):
 
         gap = Gap.objects.filter(user_id=pk, id=id).first()
-        if (gap is not None):
-            valid_serializers = [GapSerializer(gap, data=request.data),
-                                 GapSerializer(gap, data=request.data, exclude=('name',)),
-                                 GapSerializer(gap, data=request.data, exclude=('location',)),
-                                 GapSerializer(gap, data=request.data, exclude=('name', 'location',))
-                                 ]
-            for serializer in valid_serializers:
-                if serializer.is_valid():
-                    serializer.save()
-                    return Response(serializer.data)
-            last_serializer = valid_serializers[len(valid_serializers) - 1]
-            return Response(last_serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        if gap is not None:
+            serializer = GapSerializer(gap, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 

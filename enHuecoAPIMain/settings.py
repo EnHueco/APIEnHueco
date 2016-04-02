@@ -113,9 +113,10 @@ USE_L10N = True
 STATIC_URL = '/static/'
 MEDIA_URL= '/media/'
 
+DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
 
 REST_FRAMEWORK = {
-    'DATETIME_FORMAT': "%Y-%m-%dT%H:%M:%S",
+    'DATETIME_FORMAT': DATETIME_FORMAT,
 }
 
 

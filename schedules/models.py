@@ -21,8 +21,8 @@ class Gap(models.Model):
     type = models.CharField(max_length=30)
 
     # Optional Values
-    name = models.TextField()
-    location = models.TextField()
+    name = models.TextField(null=False, blank=True)
+    location = models.TextField(null=False, blank=True)
 
     # Time values
     start_hour_weekday = models.CharField(max_length=2)
