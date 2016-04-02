@@ -5,11 +5,12 @@ import string
 import random
 import hashlib
 from django.utils import timezone
+
+
 # Create your models here.
 
 
 class Token(models.Model):
-
     value = models.CharField(max_length=256)
     user = models.ForeignKey(settings.USER_MODEL)
     created_on = models.DateTimeField(auto_now_add=True)
@@ -25,8 +26,8 @@ class Token(models.Model):
     def __str__(self):
         return self.value
 
-class Tokenizer(models.Model):
 
+class Tokenizer(models.Model):
     @staticmethod
     def assignToken(user):
 

@@ -6,6 +6,7 @@ import schedules.models as models
 class GapSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Gap
+
     # read_only_fields = ('created_on', 'updated_on')
 
     def __init__(self, *args, **kwargs):
@@ -30,13 +31,14 @@ class GapSerializer(serializers.ModelSerializer):
 
         return repr
 
+
 class EventSerializerNoUser(GapSerializer):
     class Meta:
         model = models.Gap
         exclude = ('user',)
 
-class GapSerializerID(serializers.ModelSerializer):
 
+class GapSerializerID(serializers.ModelSerializer):
     class Meta:
         model = models.Gap
         fields = ('id',)

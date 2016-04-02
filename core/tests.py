@@ -173,7 +173,6 @@ class FriendshipTestCase(APITestCase):
 
         self.assertEqual(response.data, serializer.data)
 
-
     def testShowFriend(self):
         url = reverse('friend-detail', kwargs={'fpk': self.friendLogin})
         data = {'HTTP_X_USER_ID': self.myLogin, 'HTTP_X_USER_TOKEN': self.myToken.value}
@@ -251,10 +250,10 @@ class SchedulesTestCase(EHAPITestCase):
         events_to_add = []
         for i in range(3):
             new_event = Gap(name="New Event {}".format(i), location="New Location {}".format(i), type="FREE TIME",
-                          start_hour_weekday=str(i), start_hour='200', end_hour_weekday=str(i), end_hour='210')
+                            start_hour_weekday=str(i), start_hour='200', end_hour_weekday=str(i), end_hour='210')
             events_to_add.append(new_event)
 
-        serializer = GapSerializer(events_to_add, many=True, exclude=('id','user', 'created_on', 'updated_on'))
+        serializer = GapSerializer(events_to_add, many=True, exclude=('id', 'user', 'created_on', 'updated_on'))
 
         response = self.client.post(url, serializer.data, format='json', **data)
 
@@ -265,15 +264,14 @@ class SchedulesTestCase(EHAPITestCase):
             for event_attribute in newly_created_event.keys():
                 new_attributes = ('id', 'created_on', 'updated_on')
                 if event_attribute not in new_attributes:
-                    self.assertEqual(newly_created_event[event_attribute], getattr(events_to_add[i],event_attribute))
-
+                    self.assertEqual(newly_created_event[event_attribute], getattr(events_to_add[i], event_attribute))
 
     def testDeleteGaps(self):
         url = reverse('show-gaps')
         data = self.credentials_kwargs
 
         serializer = GapSerializer(self.me.gap_set.all(), many=True)
-        response = self.client.delete(url, serializer.data, format='json', **data )
+        response = self.client.delete(url, serializer.data, format='json', **data)
 
         self.gaps = User.objects.get(login=self.my_login).gap_set.all()
 

@@ -3,8 +3,8 @@ from django.test import TestCase
 from models import Tokenizer, Token
 from users.models import User
 
-class TokenizerTestCase(TestCase):
 
+class TokenizerTestCase(TestCase):
     def test_tokenizer_assigns_token(self):
         usr = User.create('Test123', 'Test', 'Test')
         tok = Tokenizer.assignToken(usr)
@@ -16,11 +16,10 @@ class TokenizerTestCase(TestCase):
         usr = User.create(user_id, password, 'Test')
         usr.save()
         tok = Tokenizer.assignToken(usr)
-        self.assertTrue(Tokenizer.authenticate(user_id,tok.value))
+        self.assertTrue(Tokenizer.authenticate(user_id, tok.value))
 
 
 class TokenTestCase(TestCase):
-
     def test_token_creates_successfully(self):
         token = Token()
         self.assertEqual(type(token), Token)
