@@ -47,7 +47,7 @@ class GapsViewSet(viewsets.ViewSet):
     def delete(self, request, pk, id):
 
         gap = Gap.objects.filter(user_id=pk, id=id).first()
-        if (gap is not None):
+        if gap is not None:
             gap.delete()
             return Response(status=status.HTTP_200_OK)
         else:

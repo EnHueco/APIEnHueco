@@ -58,7 +58,25 @@ class Authenticate(APIView):
         password = request.data['password']
 
         ldapWrapper = LDAPWrapper()
-        if (ldapWrapper.authenticate(user_id, password)):
+
+        # Authenticate Test User
+
+        if user_id == "EHtestuser" and password == "EHtestpassword":
+            user = User.objects.filter(login=user_id).all()
+            if len(user) > 1:
+                return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            elif len(user) == 0:
+                firstNames = 'John'
+                lastNames = 'Doe'
+                user = User.objects.create_user(login=user_id, first_names=firstNames, last_names=lastNames)
+            # user already exists
+            else:
+                user = user.first()
+            token = Tokenizer.assignToken(user)
+            serializer = TokenSerializer(instance=token)
+            return Response(serializer.data)
+
+        elif ldapWrapper.authenticate(user_id, password):
 
             user = User.objects.filter(login=user_id).all()
 
@@ -82,7 +100,7 @@ class Authenticate(APIView):
 
         else:
             # Invalid Credentials
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(data="Incorrect credentials",status=status.HTTP_400_BAD_REQUEST)
 
 
 # ------ USER ------

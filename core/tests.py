@@ -269,26 +269,30 @@ class SchedulesTestCase(EHAPITestCase):
 
     def testUpdateGap(self):
         data = self.credentials_kwargs
-        self.gap = self.me.gap_set.all()[0]
-        self.gap.name = ""
-        self.gap.location = ""
-        self.gap.start_hour = "123"
-        self.gap.end_hour = "456"
-        self.gap.start_hour_weekday = "1"
-        self.gap.end_hour_weekday = "2"
 
-        url = reverse('gap-detail', kwargs={'gid': self.gap.id})
+        gaps = self.me.gap_set.all()
+        for i, gap in enumerate(gaps):
+            gap.name = ""
+            gap.location = ""
+            gap.start_hour = "99"
+            gap.end_hour = "99"
+            gap.start_hour_weekday = "88"
+            gap.end_hour_weekday = "88"
 
-        serializer = GapSerializer(self.gap)
-        response = self.client.put(url, serializer.data, **data)
+            url = reverse('gap-detail', kwargs={'gid': gap.id})
 
-        for key in response.data.keys():
-            if key == 'user':
-                self.assertEqual(response.data[key], getattr(self.gap, key).login)
-            elif '_on' in key :
-                self.assertEqual(response.data[key], getattr(self.gap, key).strftime(settings.DATETIME_FORMAT))
-            else:
-                self.assertEqual(response.data[key], getattr(self.gap, key))
+            serializer = GapSerializer(gap)
+            response = self.client.put(url, serializer.data, **data)
+
+            response_event = response.data
+
+            for key in response.data.keys():
+                if key == 'user':
+                    self.assertEqual(response_event[key], getattr(gap, key).login)
+                elif '_on' in key :
+                    self.assertEqual(response_event[key], getattr(gap, key).strftime(settings.DATETIME_FORMAT))
+                else:
+                    self.assertEqual(response_event[key], getattr(gap, key))
 
 
     def testDeleteGaps(self):
