@@ -61,7 +61,7 @@ class Authenticate(APIView):
 
         # Authenticate Test User
 
-        if user_id == "EHtestuser" and password == "EHtestpassword":
+        if user_id == "testuser" and password == "testpassword":
             user = User.objects.filter(login=user_id).all()
             if len(user) > 1:
                 return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
