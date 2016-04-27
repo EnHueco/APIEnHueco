@@ -59,24 +59,7 @@ class Authenticate(APIView):
 
         ldapWrapper = LDAPWrapper()
 
-        # Authenticate Test User
-
-        if user_id == "testuser" and password == "testpassword":
-            user = User.objects.filter(login=user_id).all()
-            if len(user) > 1:
-                return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            elif len(user) == 0:
-                firstNames = 'John'
-                lastNames = 'Doe'
-                user = User.objects.create_user(login=user_id, first_names=firstNames, last_names=lastNames)
-            # user already exists
-            else:
-                user = user.first()
-            token = Tokenizer.assignToken(user)
-            serializer = TokenSerializer(instance=token)
-            return Response(serializer.data)
-
-        elif ldapWrapper.authenticate(user_id, password):
+        if (user_id == "testuser" and password == "testpassword") or ldapWrapper.authenticate(user_id, password):
 
             user = User.objects.filter(login=user_id).all()
 
@@ -86,9 +69,14 @@ class Authenticate(APIView):
 
             # user does not exist
             elif len(user) == 0:
-                data = ldapWrapper.search(user_id)
-                firstNames = string.capwords(data['givenName'][0].strip())
-                lastNames = string.capwords(data['sn'][0].strip())
+                # Test user creation
+                if user_id == "testuser" and password == "testpassword":
+                    firstNames = 'John'
+                    lastNames = 'Doe'
+                else:
+                    data = ldapWrapper.search(user_id)
+                    firstNames = string.capwords(data['givenName'][0].strip())
+                    lastNames = string.capwords(data['sn'][0].strip())
                 user = User.objects.create_user(login=user_id, first_names=firstNames, last_names=lastNames)
 
             # user already exists
