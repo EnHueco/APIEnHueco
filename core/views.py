@@ -89,7 +89,7 @@ class Authenticate(APIView):
                 data = ldapWrapper.search(user_id)
                 firstNames = string.capwords(data['givenName'][0].strip())
                 lastNames = string.capwords(data['sn'][0].strip())
-                user = User.objects.create_user(login=user_id, firstNames=firstNames, lastNames=lastNames)
+                user = User.objects.create_user(login=user_id, first_names=firstNames, last_names=lastNames)
 
             # user already exists
             else:
