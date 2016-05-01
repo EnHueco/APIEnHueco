@@ -81,9 +81,7 @@ class ImmediateEventViewSet(viewsets.ViewSet):
     def update(self, request, pk):
         immediate_event = ImmediateEvent.objects.filter(user=pk).all()
         if len(immediate_event) == 1:
-            allowed_serializers = [ImmediateEventSerializerNoUser, ImmediateEventSerializerNoUserNoName,
-                                   ImmediateEventSerializerNoUserNoLocation,
-                                   ImmediateEventSerializerNoUserNoNameNoLocation]
+            allowed_serializers = [ImmediateEventSerializerNoUser]
             for serializer_class in allowed_serializers:
                 serializer = serializer_class(immediate_event[0], data=request.data)
                 if serializer.is_valid():
