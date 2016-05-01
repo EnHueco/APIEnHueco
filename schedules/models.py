@@ -104,8 +104,8 @@ class ImmediateEvent(models.Model):
     type = models.CharField(max_length=30, default=Gap.FREE_TIME)
 
     # Optional Values
-    name = models.TextField(null=False, default="")
-    location = models.TextField(null=False, default="")
+    name = models.TextField(null=False, blank=True, default="")
+    location = models.TextField(null=False, blank=True, default="")
 
     # End date of the immediate event
     valid_until = models.DateTimeField(default=datetime.datetime.now())
