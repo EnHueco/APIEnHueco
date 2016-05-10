@@ -54,7 +54,7 @@ class Authenticate(APIView):
               type: string
               required: true
         """
-        user_id = request.data['user_id']
+        user_id = request.data['user_id'].strip().lower()
         password = request.data['password']
 
         ldapWrapper = LDAPWrapper()

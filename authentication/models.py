@@ -26,7 +26,7 @@ class LDAPWrapper(models.Model):
         :type login str
         :type password str
         """
-        user = login.strip().lower() or "Ninguno"
+        user = login or "Ninguno"
         password = password or "Ninguno"
 
         self.conn = simpleldap.Connection(LDAPWrapper.CONNECTION_DOMAIN)
