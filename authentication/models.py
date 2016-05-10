@@ -22,7 +22,11 @@ class LDAPWrapper(models.Model):
 
 
     def authenticate(self, login, password):
-        user = login or "Ninguno"
+        """
+        :type login str
+        :type password str
+        """
+        user = login.strip().lower() or "Ninguno"
         password = password or "Ninguno"
 
         self.conn = simpleldap.Connection(LDAPWrapper.CONNECTION_DOMAIN)
