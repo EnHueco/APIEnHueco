@@ -22,6 +22,11 @@ class GapSerializer(serializers.ModelSerializer):
 
         return repr
 
+class GapSerializerNoUser(GapSerializer):
+
+    class Meta:
+        model = models.Gap
+        exclude = ('user',)
 
 class EventSerializerNoUser(GapSerializer):
     class Meta:

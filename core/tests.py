@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.renderers import JSONRenderer
 
 from enHuecoAPIMain import settings
-from schedules.serializers import ImmediateEventSerializer
+from schedules.serializers import ImmediateEventSerializer, GapSerializerNoUser
 from tokenizer.models import Tokenizer, Token
 from schedules.models import Gap, ImmediateEvent
 from users.serializers import *
@@ -281,7 +281,7 @@ class SchedulesTestCase(EHAPITestCase):
 
             url = reverse('gap-detail', kwargs={'gid': gap.id})
 
-            serializer = GapSerializer(gap)
+            serializer = GapSerializerNoUser(gap)
             response = self.client.put(url, serializer.data, **data)
 
             response_event = response.data

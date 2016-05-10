@@ -5,7 +5,7 @@ from rest_framework import status
 from models import Gap, ImmediateEvent
 from schedules.serializers import GapSerializer, ImmediateEventSerializer, ImmediateEventSerializerNoUser, \
     ImmediateEventSerializerNoUserNoLocation, ImmediateEventSerializerNoUserNoName, \
-    ImmediateEventSerializerNoUserNoNameNoLocation, GapSerializerID, EventSerializerNoUser
+    ImmediateEventSerializerNoUserNoNameNoLocation, GapSerializerID, EventSerializerNoUser, GapSerializerNoUser
 from users.models import User
 
 
@@ -49,7 +49,7 @@ class GapsViewSet(viewsets.ViewSet):
         gap = Gap.objects.filter(user_id=pk, id=id).first()
         if gap is not None:
             gap.delete()
-            return Response(status=status.HTTP_200_OK)
+            return Response("{}",status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -68,7 +68,7 @@ class GapsViewSet(viewsets.ViewSet):
 
         gap = Gap.objects.filter(user_id=pk, id=id).first()
         if gap is not None:
-            serializer = GapSerializer(gap, data=request.data)
+            serializer = GapSerializerNoUser(gap, data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data)
