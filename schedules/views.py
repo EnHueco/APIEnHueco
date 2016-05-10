@@ -48,8 +48,11 @@ class GapsViewSet(viewsets.ViewSet):
 
         gap = Gap.objects.filter(user_id=pk, id=id).first()
         if gap is not None:
-            gap.delete()
-            return Response("{}",status=status.HTTP_200_OK)
+            ser = GapSerializer(gap)
+            if ser.is_valid():
+                gap.delete()
+                return Response(ser.data,status=status.HTTP_200_OK)
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
